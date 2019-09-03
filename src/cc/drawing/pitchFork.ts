@@ -17,8 +17,8 @@ export class PitchFork extends ThreePointDrawing {
 	line4: ILine
 	line5: ILine
 
-	constructor(l: IThreePointDrawing) {
-		super(l)
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 
 		this.type = PitchFork.type
 

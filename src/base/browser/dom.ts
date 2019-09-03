@@ -163,12 +163,13 @@ export function getTotalHeight(element: HTMLElement): number {
 
 // ----------------------------------------------------------------------------------------
 
-export function clientToLocal(e: MouseEvent, ele: Element): IBaseVector {
+export function clientToLocal(e: MouseEvent, ele: Element, scaleCanvas: HTMLCanvasElement): IBaseVector {
 	const rect = ele.getBoundingClientRect()
-
+	const mouseX = (e.clientX - rect.left) / (rect.right - rect.left) * scaleCanvas.width;
+	const mouseY = (e.clientY - rect.top) / (rect.bottom - rect.top) * scaleCanvas.height;
 	return {
-		x: e.layerX,
-		y: e.layerY,
+		x: mouseX,
+		y: mouseY
 	}
 }
 

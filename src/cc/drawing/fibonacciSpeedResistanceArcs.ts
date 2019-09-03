@@ -11,8 +11,8 @@ export class FibonacciSpeedResistanceArcs extends TwoPointDrawing {
 
 	arcs: IArc[]
 
-	constructor(l: ITwoPointDrawing) {
-		super(l)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 		this.type = FibonacciSpeedResistanceArcs.type
 
 		this.arcs = []

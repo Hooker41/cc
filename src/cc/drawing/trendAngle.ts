@@ -14,15 +14,15 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 	label: Text
 	static ArcSize = 50
 
-	constructor(l: ITwoPointDrawing) {
-		super(l)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 		this.type = 'TrendAngle'
 
 		this.line = new Line(l)
 		this.horizontalLine = new Line({x1: l.x1, y1: l.y1, x2: l.x1 + TrendAngle.ArcSize, y2: l.y1})
 
 		let angle = Vector.angle(Vector.subtract({x: l.x2, y: l.y2}, {x: l.x1, y: l.y1}))
-
+		angle = parseFloat(angle.toFixed(2))
 		this.arc = new Arc({
 			cx: l.x1,
 			cy: l.y1,
@@ -62,6 +62,7 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 		this.arc.cx = val
 
 		let angle = Vector.angle(Vector.subtract({x: this.x2, y: this.y2}, {x: val, y: this.y1}))
+		angle = parseFloat(angle.toFixed(2))
 		this.arc.endAngle = angle
 		this.arc.anticlockwise = angle < 0
 		this.label.value = `${-angle}°`
@@ -83,6 +84,7 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 		this.arc.cy = val
 
 		let angle = Vector.angle(Vector.subtract({x: this.x2, y: this.y2}, {x: this.x1, y: val}))
+		angle = parseFloat(angle.toFixed(2))
 		this.arc.endAngle = angle
 		this.arc.anticlockwise = angle < 0
 		this.label.value = `${-angle}°`
@@ -98,6 +100,7 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 		this.line.x2 = val
 
 		let angle = Vector.angle(Vector.subtract({x: val, y: this.y2}, {x: this.x1, y: this.y1}))
+		angle = parseFloat(angle.toFixed(2))
 		this.arc.endAngle = angle
 		this.arc.anticlockwise = angle < 0
 		this.label.value = `${-angle}°`
@@ -112,6 +115,7 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 		this.line.y2 = val
 
 		let angle = Vector.angle(Vector.subtract({x: this.x2, y: val}, {x: this.x1, y: this.y1}))
+		angle = parseFloat(angle.toFixed(2))
 		this.arc.endAngle = angle
 		this.arc.anticlockwise = angle < 0
 		this.label.value = `${-angle}°`

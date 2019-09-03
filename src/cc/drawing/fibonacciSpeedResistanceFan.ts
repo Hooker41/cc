@@ -14,8 +14,8 @@ export class FibonacciSpeedResistanceFan extends ThreePointDrawing {
 	leftFanLines: ILine[]
 	rightFanlines: ILine[]
 
-	constructor(l: IThreePointDrawing) {
-		super(l)
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 		this.type = FibonacciSpeedResistanceFan.type
 
 		this.horizontalLines = []

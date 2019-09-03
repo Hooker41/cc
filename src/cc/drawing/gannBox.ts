@@ -10,8 +10,8 @@ export class GannBox extends TwoPointDrawing implements ITrendLine {
 	horizontalLines: ILine[]
 	verticalLines: ILine[]
 
-	constructor(l: ITwoPointDrawing) {
-		super(l)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 		this.type = GannBox.type
 
 		this.horizontalLines = []

@@ -14,8 +14,8 @@ export class ParallelChannel extends ThreePointDrawing {
 	__x3: number
 	thirdDispose: IDisposable
 
-	constructor(l: IThreePointDrawing) {
-		super(l)
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 
 		this.type = ParallelChannel.type
 		this.line = new Line(l)
@@ -32,7 +32,9 @@ export class ParallelChannel extends ThreePointDrawing {
 	_handleDragControlPoint(e) {
 		e.preventDefault()
 		e.stopPropagation()
-		const {x, y} = e
+		const rect = this.scaleCanvas.getBoundingClientRect();
+		const x = (e.clientX - rect.left) / (rect.right - rect.left) * this.scaleCanvas.width;
+		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
 		if (this.draggingPoint === this.firstLollipop) {
 			this.x1 = x
 			this.y1 = y
@@ -47,7 +49,7 @@ export class ParallelChannel extends ThreePointDrawing {
 		this._refineThirdLollipop()
 
 		let stage = this.root as IStage
-		stage.update()
+		stage.update({x: e.clientX , y: e.clientY})
 	}
 
 	_handleEndDragControlPoint(e) {

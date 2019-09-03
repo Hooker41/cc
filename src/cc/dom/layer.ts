@@ -131,7 +131,7 @@ export class Layer extends Node implements IContainer, IDisposable {
   }
 
   protected render() {
-    this.canvasContext.clearRect(0, 0, this.bounds.width, this.bounds.height)
+    this.canvasContext.clearRect(0, 0, this.bounds.width + 50, this.bounds.height)
     for (let i = 0, len = this.children.length; i < len; i++) {
       let child = this.children[i] as ShapeObject
       child.render(this.canvasContext)

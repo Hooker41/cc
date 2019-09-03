@@ -11,8 +11,8 @@ export class Ellipse extends ThreePointDrawing {
 
 	ellipse: IEllipse
 
-	constructor(l: IThreePointDrawing) {
-		super(l)
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 
 		this.type = Ellipse.type
 

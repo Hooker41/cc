@@ -5,8 +5,8 @@ import {clientToLocal} from "../../base/browser/dom";
 import {Emitter} from "../../base/common/events";
 import {IBaseVector} from "../core/def";
 
-function makeSyntheticEvent(e: MouseEvent, element, type): IMouseEvent {
-	const {x, y} = clientToLocal(e, element)
+function makeSyntheticEvent(e: MouseEvent, element, scaleCanvas: HTMLCanvasElement, type): IMouseEvent {
+	const {x, y} = clientToLocal(e, element, scaleCanvas)
 	const buttons = e.buttons
 	return {
 		type,
@@ -14,8 +14,12 @@ function makeSyntheticEvent(e: MouseEvent, element, type): IMouseEvent {
 		leftButton: buttons === 1,
 		middleButton: buttons === 3,
 		rightButton: buttons === 2,
-		x,
-		y,
+		x: x,
+		y: y,
+		layerX: e.layerX,
+		layerY: e.layerY,
+		clientX: e.clientX,
+		clientY: e.clientY,
 		ctrlKey: e.ctrlKey,
 		shiftKey: e.shiftKey,
 		altKey: e.altKey,
@@ -33,7 +37,7 @@ export class EventProxy implements IEventProxy, IDisposable {
 	private firstDragPosition: IBaseVector;
 	private prevDragPosition: IBaseVector;
 
-	constructor(protected target: HTMLElement) {
+	constructor(protected target: HTMLElement, protected scaleCanvas: HTMLCanvasElement) {
 		this.minDragDistance = 3
 
 		this._onMouseEvent = new Emitter<IMouseEvent>()
@@ -56,13 +60,13 @@ export class EventProxy implements IEventProxy, IDisposable {
 	private handleMouseDown(e: MouseEvent) {
 		// e.preventDefault()
 		// e.stopImmediatePropagation()
-		this._onMouseEvent.fire(makeSyntheticEvent(e, this.target, EventType.MOUSE_DOWN))
+		this._onMouseEvent.fire(makeSyntheticEvent(e, this.target, this.scaleCanvas, EventType.MOUSE_DOWN))
 	}
 
 	private handleMouseClick(e: MouseEvent) {
 		// e.preventDefault()
 		// e.stopImmediatePropagation()
-		this._onMouseEvent.fire(makeSyntheticEvent(e, this.target, EventType.CLICK))
+		this._onMouseEvent.fire(makeSyntheticEvent(e, this.target, this.scaleCanvas, EventType.CLICK))
 	}
 
 	private handleMouseUp(e: MouseEvent) {
@@ -70,13 +74,13 @@ export class EventProxy implements IEventProxy, IDisposable {
 		// e.stopImmediatePropagation()
 		this.firstDragPosition = null
 		this.prevDragPosition = null
-		this._onMouseEvent.fire(makeSyntheticEvent(e, this.target, EventType.MOUSE_UP))
+		this._onMouseEvent.fire(makeSyntheticEvent(e, this.target, this.scaleCanvas, EventType.MOUSE_UP))
 	}
 
 	private handleMouseMove(e: MouseEvent) {
 		// e.preventDefault()
 		// e.stopImmediatePropagation()
-		let event = makeSyntheticEvent(e, this.target, EventType.MOUSE_MOVE)
+		let event = makeSyntheticEvent(e, this.target, this.scaleCanvas, EventType.MOUSE_MOVE)
 		if (event.buttons) {
 			if (!this.firstDragPosition) this.firstDragPosition = {x: event.x, y: event.y}
 			if (!this.prevDragPosition) this.prevDragPosition = {x: event.x, y: event.y}

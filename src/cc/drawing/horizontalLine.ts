@@ -4,8 +4,8 @@ import {IStage} from "../dom/def";
 
 export class HorizontalLine extends OnePointDrawing implements IHorizontalLine {
 	static type = 'HorizontalLine'
-	constructor(l: IOnePointDrawing) {
-		super(l)
+	constructor(l: IOnePointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 
 		this.type = HorizontalLine.type
 	}

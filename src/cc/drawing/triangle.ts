@@ -10,8 +10,8 @@ export class Triangle extends ThreePointDrawing {
 	line1: ILine
 	line2: ILine
 
-	constructor(l: IThreePointDrawing) {
-		super(l)
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 
 		this.type = Triangle.type
 

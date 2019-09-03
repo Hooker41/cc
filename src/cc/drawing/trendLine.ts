@@ -6,8 +6,8 @@ import {ITrendLine, ITwoPointDrawing} from "./def";
 export class TrendLine extends TwoPointDrawing implements ITrendLine {
 	line: ILine
 
-	constructor(l: ITwoPointDrawing) {
-		super(l)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 		this.type = 'TrendLine'
 
 		this.line = new Line(l)

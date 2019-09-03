@@ -1,13 +1,13 @@
 import {TwoPointDrawing} from "./drawing";
 import {IStage} from "../dom/def";
 import {Line} from "../core/line";
-import {IExtendedLine} from "./def";
+import {IExtendedLine, ITwoPointDrawing} from "./def";
 
 export class ExtendedLine extends TwoPointDrawing implements IExtendedLine {
 	static type = 'ExtendedLine'
 
-	constructor(l) {
-		super(l)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 
 		this.type = ExtendedLine.type
 	}

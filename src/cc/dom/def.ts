@@ -62,7 +62,7 @@ export interface IContainer {
 export interface IStage extends INode, IContainer {
   container: HTMLDivElement
   animator: IAnimator
-  update(): void;
+  update(point: IBaseVector): void;
 }
 
 export interface IStageInitOption {
@@ -172,6 +172,10 @@ export interface IMouseEvent {
   //  detail: number;
   x: number,
   y: number,
+  layerX: number,
+  layerY: number,
+  clientX: number,
+  clientY: number,
   ctrlKey: boolean;
   shiftKey: boolean;
   altKey: boolean;

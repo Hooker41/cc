@@ -13,16 +13,16 @@ export class OnePointDrawing extends Element implements IOnePointDrawing, IDispo
 
 	_x: number
 	_y: number
-
+	scaleCanvas: HTMLCanvasElement
 	lollipop: ILollipop
 
 	toDispose: IDisposable[] = []
 	globalMouseDisposable: IDisposable
 
-	constructor(l: IOnePointDrawing) {
+	constructor(l: IOnePointDrawing, scaleCanvas: HTMLCanvasElement) {
 		super()
 		this.type = 'TrendLine'
-
+		this.scaleCanvas = scaleCanvas
 		this._x = l.x
 		this._y = l.y
 
@@ -72,11 +72,13 @@ export class OnePointDrawing extends Element implements IOnePointDrawing, IDispo
 	_handleDragControlPoint(e) {
 		e.preventDefault()
 		e.stopPropagation()
-		const {x, y} = e
-		this.x = x
-		this.y = y
+		const rect = this.scaleCanvas.getBoundingClientRect();
+		const mouseX = (e.clientX - rect.left) / (rect.right - rect.left) * this.scaleCanvas.width;
+		const mouseY = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
+		this.x = mouseX
+		this.y = mouseY
 		let stage = this.root as IStage
-		stage.update()
+		stage.update({x: e.clientX , y: e.clientY})
 	}
 
 	get x() {
@@ -141,7 +143,7 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 	_y1: number
 	_x2: number
 	_y2: number
-
+	scaleCanvas: HTMLCanvasElement
 	lollipops: ILollipop[] = []
 
 	draggingPoint: ILollipop
@@ -149,10 +151,10 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 	toDispose: IDisposable[] = []
 	globalMouseDisposable: IDisposable
 
-	constructor(l: ITwoPointDrawing) {
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
 		super()
 		this.type = 'TrendLine'
-
+		this.scaleCanvas = scaleCanvas
 		this._x1 = l.x1
 		this._x2 = l.x2
 		this._y1 = l.y1
@@ -236,7 +238,9 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 	_handleDragControlPoint(e) {
 		e.preventDefault()
 		e.stopPropagation()
-		const { layerX: x, layerY: y} = e
+		const rect = this.scaleCanvas.getBoundingClientRect();
+		const x = (e.clientX - rect.left) / (rect.right - rect.left) * this.scaleCanvas.width;
+		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
 		if (this.draggingPoint === this.firstLollipop) {
 			this.x1 = x
 			this.y1 = y
@@ -245,7 +249,7 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 			this.y2 = y
 		}
 		let stage = this.root as IStage
-		stage.update()
+		stage.update({x: e.clientX , y: e.clientY})
 	}
 
 	get x1() {
@@ -333,7 +337,7 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 	_y2: number
 	_x3: number
 	_y3: number
-
+	scaleCanvas: HTMLCanvasElement
 	lollipops: ILollipop[] = []
 
 	draggingPoint: ILollipop
@@ -341,7 +345,7 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 	toDispose: IDisposable[] = []
 	globalMouseDisposable: IDisposable
 
-	constructor(l: IThreePointDrawing) {
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
 		super()
 
 		this._x1 = l.x1
@@ -350,7 +354,7 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 		this._y1 = l.y1
 		this._y2 = l.y2
 		this._y3 = l.y3
-
+		this.scaleCanvas = scaleCanvas
 		this.lollipops = [
 			new Lollipop(l.x1, l.y1),
 			new Lollipop(l.x2, l.y2),
@@ -436,7 +440,9 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 	_handleDragControlPoint(e) {
 		e.preventDefault()
 		e.stopPropagation()
-		const {x, y} = e
+		const rect = this.scaleCanvas.getBoundingClientRect();
+		const x = (e.clientX - rect.left) / (rect.right - rect.left) * this.scaleCanvas.width;
+		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
 		if (this.draggingPoint === this.firstLollipop) {
 			this.x1 = x
 			this.y1 = y
@@ -448,7 +454,7 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 			this.y3 = y
 		}
 		let stage = this.root as IStage
-		stage.update()
+		stage.update({x: e.clientX , y: e.clientY})
 	}
 
 	get x1() {

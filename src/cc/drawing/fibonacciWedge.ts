@@ -11,8 +11,8 @@ export class FibonacciWedge extends ThreePointDrawing {
 
 	arcs: IArc[]
 
-	constructor(l: IThreePointDrawing) {
-		super(l)
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 
 		this.arcs = []
 

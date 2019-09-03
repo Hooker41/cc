@@ -6,8 +6,8 @@ import {Angle} from "../core/angle";
 export class Arrow extends TrendLine implements IArrow {
 	static type = 'Arrow'
 
-	constructor(l: ITwoPointDrawing) {
-		super(l)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 		this.type = Arrow.type
 	}
 

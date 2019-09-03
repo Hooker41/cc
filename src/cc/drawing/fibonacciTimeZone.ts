@@ -10,8 +10,8 @@ export class FibonacciTimeZone extends TwoPointDrawing {
 
 	lines: ILine[]
 
-	constructor(l: ITwoPointDrawing) {
-		super(l)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 		this.type = FibonacciTimeZone.type
 
 		this.lines = []

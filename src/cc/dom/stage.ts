@@ -52,19 +52,26 @@ export class Stage extends Node implements IStage, IDisposable {
   bounds: IBaseRectangle
   private eventHandler: EventHandler
   public animator: Animator
-
-  constructor(public container: HTMLDivElement, option: IStageInitOption = {}) {
+  public movehandler: Function
+  constructor(public container: HTMLDivElement, public scaleCanvas: HTMLCanvasElement, movehandler: Function, option: IStageInitOption = {}) {
     super()
     this.bounds = {width: getContentWidth(container), height: getContentHeight(container), x: 0, y: 0}
 
     // this.container.style.position = 'relative'
     this.container.setAttribute('role', 'presentation')
 
-    this.eventHandler = new EventHandler(container, this)
+    this.eventHandler = new EventHandler(container, scaleCanvas, this)
     this.animator = new Animator(this)
     this.toDispose.push(this.eventHandler)
+    this.movehandler = movehandler;
+  }
+  get getBounds() {
+    return this.bounds
   }
 
+  set setBounds(val: IBaseRectangle) {
+    this.bounds = val
+  }
   protected _appendChild(child: ILayer): void {
     super._appendChild(child)
 
@@ -140,10 +147,13 @@ export class Stage extends Node implements IStage, IDisposable {
     this.toDispose = dispose(this.toDispose)
   }
 
-  update() {
+  update(point: IBaseVector): void {
     for (let i = 0, len = this.children.length; i < len; i++) {
       let child = this.children[i] as ILayer
       child.refresh()
+    }
+    if (point.x && point.y) {
+      this.movehandler({clientX: point.x, clientY: point.y});
     }
   }
 }

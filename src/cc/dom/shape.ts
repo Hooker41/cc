@@ -64,7 +64,7 @@ export class Shape extends Node implements IShape {
   id: string
 
   // Stroke
-  strokeColor: Color = Color.black
+  strokeColor: Color = Color.white
   strokeWidth: number = 0.5
   strokeCap: StrokeCap = StrokeCap.Butt
   strokeJoin: StrokeJoin = StrokeJoin.Miter

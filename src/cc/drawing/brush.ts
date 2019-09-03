@@ -16,8 +16,8 @@ export class Brush extends TwoPointDrawing {
 	startX: number
 	startY: number
 
-	constructor(l: ITwoPointDrawing) {
-		super(l)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 		this.type = Brush.type
 
 		this.lines = []
@@ -35,7 +35,9 @@ export class Brush extends TwoPointDrawing {
 	_handleDragControlPoint(e) {
 		e.preventDefault()
 		e.stopPropagation()
-		const {x, y} = e
+		const rect = this.scaleCanvas.getBoundingClientRect();
+		const x = (e.clientX - rect.left) / (rect.right - rect.left) * this.scaleCanvas.width;
+		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
 		let dx = x - this.startX
 		let dy = y - this.startY
 		this.startX = x
@@ -53,7 +55,7 @@ export class Brush extends TwoPointDrawing {
 		// })
 
 		let stage = this.root as IStage
-		stage.update()
+		stage.update({x: e.clientX , y: e.clientY})
 	}
 
 	push(pt: IBaseVector) {

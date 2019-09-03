@@ -11,8 +11,8 @@ export class FibonacciCircles extends TwoPointDrawing implements ITrendLine {
 
 	circles: IEllipse[]
 
-	constructor(l: ITwoPointDrawing) {
-		super(l)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 		this.type = FibonacciCircles.type
 
 		this.circles = []

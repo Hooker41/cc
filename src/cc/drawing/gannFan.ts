@@ -11,8 +11,8 @@ export class GannFan extends TwoPointDrawing implements ITrendLine {
 
 	lines: ILine[]
 
-	constructor(l: ITwoPointDrawing) {
-		super(l)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 		this.type = GannFan.type
 
 		this.lines = []

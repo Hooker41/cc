@@ -4,8 +4,8 @@ import {IStage} from "../dom/def";
 
 export class VerticalLine extends OnePointDrawing implements IVerticalLine {
 	static type = 'VerticalLine'
-	constructor(l: IOnePointDrawing) {
-		super(l)
+	constructor(l: IOnePointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 
 		this.type = VerticalLine.type
 	}

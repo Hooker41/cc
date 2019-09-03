@@ -5,8 +5,8 @@ import {Line} from "../core/line";
 
 export class HorizontalRay extends OnePointDrawing implements IHorizontalRay {
 	static type = 'HorizontalRay'
-	constructor(l: IOnePointDrawing) {
-		super(l)
+	constructor(l: IOnePointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 
 		this.type = HorizontalRay.type
 	}

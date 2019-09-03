@@ -12,8 +12,8 @@ export class EventHandler implements IDisposable {
 	private currentDragTarget: INode;//
 	private previousEventType: string;
 
-	constructor(private target: HTMLElement, private rootNode: INode) {
-		this.proxy = new EventProxy(target)
+	constructor(private target: HTMLElement, private scaleCanvas: HTMLCanvasElement, private rootNode: INode) {
+		this.proxy = new EventProxy(this.target, this.scaleCanvas)
 
 		this.proxy.onMouseEvent(this.handleEvent.bind(this))
 		this.toDispose.push(this.proxy)

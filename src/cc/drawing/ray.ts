@@ -1,4 +1,4 @@
-import {IRay} from "./def";
+import {IRay, ITwoPointDrawing} from "./def";
 import {TwoPointDrawing} from "./drawing";
 import {IStage} from "../dom/def";
 import {Line} from "../core/line";
@@ -7,8 +7,8 @@ import {IBaseVector} from "../core/def";
 export class Ray extends TwoPointDrawing implements IRay {
 	static type = 'Ray'
 
-	constructor(l) {
-		super(l)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 
 		this.type = Ray.type
 	}

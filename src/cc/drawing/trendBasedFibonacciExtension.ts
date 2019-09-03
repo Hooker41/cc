@@ -10,8 +10,8 @@ export class TrendBasedFibonacciExtension extends ThreePointDrawing {
 	trendLine: ILine
 	fibLines: ILine[]
 
-	constructor(l: IThreePointDrawing) {
-		super(l)
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+		super(l, scaleCanvas)
 
 		this.type = TrendBasedFibonacciExtension.type
 

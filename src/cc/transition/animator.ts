@@ -23,7 +23,7 @@ export class Animator implements IAnimator {
 				this.waitingFrame = 0
 			}
 			this.waitingFrame = requestAnimationFrame(() => {
-				this.stage.update()
+				this.stage.update({x: 0, y: 0})
 				this.waitingFrame = 0
 			})
 			return
@@ -48,7 +48,7 @@ export class Animator implements IAnimator {
 					let frame = this.transitions[i].getFrame(new FrameEvent(last, now))
 					nextFrame = nextFrame || frame
 				}
-				this.stage.update()
+				this.stage.update({x: 0, y: 0})
 				if (nextFrame) requestAnimationFrame(animate)
 				else {
 					this.transitions.length = 0
