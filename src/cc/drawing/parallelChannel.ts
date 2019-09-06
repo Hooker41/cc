@@ -78,7 +78,9 @@ export class ParallelChannel extends ThreePointDrawing {
 			this.x3 = min
 		}
 	}
-
+	get x3() {
+		return this._x3
+	}
 	set x3(val) {
 		let max = Math.max(this._x1, this._x2)
 		let min = Math.min(this._x1, this._x2)

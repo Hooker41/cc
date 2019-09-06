@@ -6,6 +6,8 @@ import {Arc} from "../path/arc";
 import {Vector} from "../core/vector";
 import {IText, TextAlign, TextBaseLine} from "../typography/def";
 import {Text} from '../typography/text'
+import {addDisposableListener, EventType} from "../../base/browser/event";
+import {IStage} from "../dom/def";
 
 export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 	line: ILine
@@ -48,7 +50,34 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 		}
 		return true
 	}
-
+	_handleStartDrag(e) {
+		if (this.isDrawing) return true
+		this.dragStartX = e.x
+		this.dragStartY = e.y
+		this.globalMouseDisposable = addDisposableListener(window, EventType.MOUSE_MOVE, this._handleDrag, true)
+		return true
+	}
+	_handleDrag(e) {
+		e.preventDefault()
+		e.stopPropagation()
+		const rect = this.scaleCanvas.getBoundingClientRect();
+		const x = (e.clientX - rect.left) / (rect.right - rect.left) * this.scaleCanvas.width;
+		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
+		let dx = x - this.dragStartX
+		let dy = y - this.dragStartY
+		this.dragStartX = x
+		this.dragStartY = y
+		this.x1 = this.x1 + dx;
+		this.y1 = this.y1 + dy;
+		let stage = this.root as IStage
+		stage.update({x: e.clientX , y: e.clientY})
+	}
+	_handleEndDrag(e){
+		if (this.isDrawing) return true
+		this.globalMouseDisposable.dispose()
+		this.globalMouseDisposable = null
+		return true
+	}
 	get x1() {
 		return this.line.x1
 	}

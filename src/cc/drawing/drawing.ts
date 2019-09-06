@@ -214,7 +214,6 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 		if (this.isDrawing) return true
 		this.dragStartX = e.x
 		this.dragStartY = e.y
-		console.log('Start Drag');
 		this.globalMouseDisposable = addDisposableListener(window, EventType.MOUSE_MOVE, this._handleDrag, true)
 		return true
 	}
@@ -226,7 +225,6 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
 		let dx = x - this.dragStartX
 		let dy = y - this.dragStartY
-		console.log('Dragging', this._x1, this._y1, {dx, dy});
 		this.dragStartX = x
 		this.dragStartY = y
 		this.x1 = this.x1 + dx;
@@ -238,7 +236,6 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 	}
 	_handleEndDrag(e){
 		if (this.isDrawing) return true
-		console.log('End Drag', this.globalMouseDisposable);
 		this.globalMouseDisposable.dispose()
 		this.globalMouseDisposable = null
 		return true
@@ -451,7 +448,6 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 		if (this.isDrawing) return true
 		this.dragStartX = e.x
 		this.dragStartY = e.y
-		console.log('Start Drag');
 		this.globalMouseDisposable = addDisposableListener(window, EventType.MOUSE_MOVE, this._handleDrag, true)
 		return true
 	}
@@ -463,7 +459,6 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
 		let dx = x - this.dragStartX
 		let dy = y - this.dragStartY
-		console.log('Dragging', this._x1, this._y1, {dx, dy});
 		this.dragStartX = x
 		this.dragStartY = y
 		this.x1 = this.x1 + dx;
@@ -477,7 +472,6 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 	}
 	_handleEndDrag(e){
 		if (this.isDrawing) return true
-		console.log('End Drag', this.globalMouseDisposable);
 		this.globalMouseDisposable.dispose()
 		this.globalMouseDisposable = null
 		return true

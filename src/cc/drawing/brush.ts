@@ -23,7 +23,19 @@ export class Brush extends TwoPointDrawing {
 		this.lines = []
 		// this.lines.push(new Line(l))
 	}
-
+	_handleStartDrag(e) {
+		this.startX = e.x
+		this.startY = e.y
+		this.globalMouseDisposable = addDisposableListener(window, EventType.MOUSE_MOVE, this._handleDragControlPoint, true)
+		return true
+	}
+	_handleEndDrag(e){
+		if (this.isDrawing) return true
+		this.draggingPoint = null
+		this.globalMouseDisposable.dispose()
+		this.globalMouseDisposable = null
+		return true
+	}
 	_handleStartDragControlPoint(e) {
 		this.startX = e.x
 		this.startY = e.y
