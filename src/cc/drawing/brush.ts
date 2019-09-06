@@ -32,8 +32,10 @@ export class Brush extends TwoPointDrawing {
 	_handleEndDrag(e){
 		if (this.isDrawing) return true
 		this.draggingPoint = null
-		this.globalMouseDisposable.dispose()
-		this.globalMouseDisposable = null
+		if (this.globalMouseDisposable) {
+			this.globalMouseDisposable.dispose()
+			this.globalMouseDisposable = null
+		}
 		return true
 	}
 	_handleStartDragControlPoint(e) {

@@ -74,8 +74,10 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 	}
 	_handleEndDrag(e){
 		if (this.isDrawing) return true
-		this.globalMouseDisposable.dispose()
-		this.globalMouseDisposable = null
+		if (this.globalMouseDisposable) {
+			this.globalMouseDisposable.dispose()
+			this.globalMouseDisposable = null
+		}
 		return true
 	}
 	get x1() {

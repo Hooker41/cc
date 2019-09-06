@@ -236,8 +236,10 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 	}
 	_handleEndDrag(e){
 		if (this.isDrawing) return true
-		this.globalMouseDisposable.dispose()
-		this.globalMouseDisposable = null
+		if (this.globalMouseDisposable) {
+			this.globalMouseDisposable.dispose()
+			this.globalMouseDisposable = null
+		}
 		return true
 	}
 	_handleStartDragControlPoint(e) {
@@ -472,8 +474,10 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 	}
 	_handleEndDrag(e){
 		if (this.isDrawing) return true
-		this.globalMouseDisposable.dispose()
-		this.globalMouseDisposable = null
+		if (this.globalMouseDisposable) {
+			this.globalMouseDisposable.dispose()
+			this.globalMouseDisposable = null
+		}
 		return true
 	}
 	_handleStartDragControlPoint(e) {
