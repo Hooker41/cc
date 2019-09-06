@@ -22,7 +22,21 @@ export class Rect extends TwoPointDrawing implements ITrendLine {
 			this.verticalLines.push(new Line(l))
 		}
 	}
+	get x1() {
+		return this._x1
+	}
 
+	get y1() {
+		return this._y1
+	}
+
+	get x2() {
+		return this._x2
+	}
+
+	get y2() {
+		return this._y2
+	}
 	set x1(val) {
 		this._x1 = val
 		if (this.lollipops && this.lollipops[0]) this.lollipops[0].cx = val

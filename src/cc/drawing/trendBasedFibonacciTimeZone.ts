@@ -26,7 +26,29 @@ export class TrendBasedFibonacciTimeZone extends ThreePointDrawing {
 		}
 		this._recalculateLines()
 	}
+	get x1() {
+		return this._x1
+	}
 
+	get y1() {
+		return this._y1
+	}
+
+	get x2() {
+		return this._x2
+	}
+
+	get y2() {
+		return this._y2
+	}
+
+	get x3() {
+		return this._x3
+	}
+
+	get y3() {
+		return this._y3
+	}
 	set x1(val) {
 		this._x1 = val
 		if (this.lollipops && this.lollipops[0]) this.lollipops[0].cx = val

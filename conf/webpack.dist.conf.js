@@ -53,7 +53,7 @@ module.exports = {
   ],
   output: {
     path: path.join(process.cwd(), conf.paths.dist),
-    filename: '[name]-[hash].js'
+    filename: 'cc.min.js'
   },
   node: {
     fs: "empty"
