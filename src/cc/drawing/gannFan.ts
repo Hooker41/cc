@@ -10,11 +10,13 @@ export class GannFan extends TwoPointDrawing implements ITrendLine {
 	static ratios = [1 / 8, 1 / 4, 1 / 3, 1 / 2, 1, 2, 3, 4, 8]
 
 	lines: ILine[]
-
-	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+	initHeight: number
+	initWidth: number
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement, initWidth: number, initHeight: number) {
 		super(l, scaleCanvas)
 		this.type = GannFan.type
-
+		this.initHeight = initHeight
+		this.initWidth = initWidth
 		this.lines = []
 		for (let i = 0, len = GannFan.ratios.length; i < len; i++) {
 			this.lines.push(new Line(l))
@@ -64,9 +66,15 @@ export class GannFan extends TwoPointDrawing implements ITrendLine {
 		const {_x1, _y1, _x2, _y2} = this
 
 		let stage = this.root as IStage
-		if (!stage) return
-
-		const {width, height} = stage.bounds
+		let width = undefined
+		let height = undefined
+		if (!stage) {
+			width = this.initWidth
+			height = this.initHeight
+		} else {
+			width = stage.bounds.width
+			height = stage.bounds.height
+		}
 		let dy = _y2 - _y1
 		for (let i = 0, len = GannFan.ratios.length; i < len; i++) {
 

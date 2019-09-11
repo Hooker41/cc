@@ -11,12 +11,14 @@ export class TrendBasedFibonacciTimeZone extends ThreePointDrawing {
 	line0: ILine
 	line1: ILine
 	fibLines: ILine[]
-
-	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+	initHeight: number
+	initWidth: number
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement, initWidth: number, initHeight: number) {
 		super(l, scaleCanvas)
 
 		this.type = TrendBasedFibonacciTimeZone.type
-
+		this.initHeight = initHeight
+		this.initWidth = initWidth
 		this.line0 = new Line(l)
 		this.line1 = new Line(l)
 		this.fibLines = []
@@ -99,10 +101,14 @@ export class TrendBasedFibonacciTimeZone extends ThreePointDrawing {
 		this.line1.y2 = _y3
 
 		let stage = this.root as IStage
-		if (!stage) return
+		let height = undefined
+		if (!stage) {
+			height = this.initHeight
+		} else {
+			height = stage.bounds.height
+		}
 
 		let dx = _x2 - _x1
-		const {height} = stage.bounds
 		for (let i = 0, len = TrendBasedFibonacciTimeZone.ratios.length; i < len; i++) {
 			let ratio = TrendBasedFibonacciTimeZone.ratios[i]
 

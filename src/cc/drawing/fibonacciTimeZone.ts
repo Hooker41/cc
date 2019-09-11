@@ -9,11 +9,13 @@ export class FibonacciTimeZone extends TwoPointDrawing {
 	static ratios = [0, 1, 2, 3, 5, 8, 13, 21]
 
 	lines: ILine[]
-
-	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+	initHeight: number
+	initWidth: number
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement, initWidth: number, initHeight: number) {
 		super(l, scaleCanvas)
 		this.type = FibonacciTimeZone.type
-
+		this.initHeight = initHeight
+		this.initWidth = initWidth
 		this.lines = []
 		for (let i = 0, len = FibonacciTimeZone.ratios.length; i < len; i++) {
 			this.lines.push(new Line(l))
@@ -63,10 +65,13 @@ export class FibonacciTimeZone extends TwoPointDrawing {
 		const {_x1, _y1, _x2, _y2} = this
 
 		let stage = this.root as IStage
-		if (!stage) return
-
+		let height = undefined
+		if (!stage) {
+			height = this.initHeight
+		} else {
+			height = stage.bounds.height
+		}
 		let dx = _x2 - _x1
-		const {height} = stage.bounds
 		for (let i = 0, len = FibonacciTimeZone.ratios.length; i < len; i++) {
 			let ratio = FibonacciTimeZone.ratios[i]
 

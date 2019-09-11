@@ -21,6 +21,7 @@ export class GannBox extends TwoPointDrawing implements ITrendLine {
 			this.horizontalLines.push(new Line(l))
 			this.verticalLines.push(new Line(l))
 		}
+		this._recalculateLines()
 	}
 	get x1() {
 		return this._x1

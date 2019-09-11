@@ -63,6 +63,10 @@ export interface IStage extends INode, IContainer {
   container: HTMLDivElement
   animator: IAnimator
   update(point: IBaseVector): void;
+  contentWidth: number
+  moveY: number
+  stickLength: number
+  saveUpdate: Function
 }
 
 export interface IStageInitOption {

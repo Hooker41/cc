@@ -50,13 +50,6 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 		}
 		return true
 	}
-	_handleStartDrag(e) {
-		if (this.isDrawing) return true
-		this.dragStartX = e.x
-		this.dragStartY = e.y
-		this.globalMouseDisposable = addDisposableListener(window, EventType.MOUSE_MOVE, this._handleDrag, true)
-		return true
-	}
 	_handleDrag(e) {
 		e.preventDefault()
 		e.stopPropagation()
@@ -67,18 +60,15 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 		let dy = y - this.dragStartY
 		this.dragStartX = x
 		this.dragStartY = y
-		this.x1 = this.x1 + dx;
-		this.y1 = this.y1 + dy;
+		this._tmpX1 = this._tmpX1 + dx;
 		let stage = this.root as IStage
+		const contentWidth = stage.contentWidth
+		const stickLength = stage.stickLength
+		const moveY = stage.moveY
+		const left = (contentWidth - moveY * 2) % stickLength;
+		this.x1 = Math.trunc((this._tmpX1 - left) / stickLength) * stickLength + stickLength / 2 + left
+		this.y1 = this.y1 + dy
 		stage.update({x: e.clientX , y: e.clientY})
-	}
-	_handleEndDrag(e){
-		if (this.isDrawing) return true
-		if (this.globalMouseDisposable) {
-			this.globalMouseDisposable.dispose()
-			this.globalMouseDisposable = null
-		}
-		return true
 	}
 	get x1() {
 		return this.line.x1

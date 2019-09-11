@@ -143,6 +143,8 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 	_y1: number
 	_x2: number
 	_y2: number
+	_tmpX1: number
+	_tmpX2: number
 	dragStartX: number
 	dragStartY: number
 	scaleCanvas: HTMLCanvasElement
@@ -152,7 +154,8 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 
 	toDispose: IDisposable[] = []
 	globalMouseDisposable: IDisposable
-
+	panEndDisposable: IDisposable
+	resizeEndDisposable: IDisposable
 	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
 		super()
 		this.type = 'TrendLine'
@@ -174,13 +177,12 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 		this.toDispose.push(this.on(EventType.MOUSE_OVER, this._handleMouseEnter.bind(this)))
 		this.toDispose.push(this.on(EventType.MOUSE_OUT, this._handleMouseLeave.bind(this)))
 		this.toDispose.push(this.on(EventType.MOUSE_DOWN, this._handleStartDrag.bind(this)))
-		this.toDispose.push(this.on(EventType.MOUSE_UP, this._handleEndDrag.bind(this)))
 		this.toDispose.push(this.firstLollipop.on(EventType.MOUSE_DOWN, this._handleStartDragControlPoint.bind(this)))
 		this.toDispose.push(this.secondLollipop.on(EventType.MOUSE_DOWN, this._handleStartDragControlPoint.bind(this)))
-		this.toDispose.push(this.firstLollipop.on(EventType.MOUSE_UP, this._handleEndDragControlPoint.bind(this)))
-		this.toDispose.push(this.secondLollipop.on(EventType.MOUSE_UP, this._handleEndDragControlPoint.bind(this)))
 		this._handleDragControlPoint = this._handleDragControlPoint.bind(this)
 		this._handleDrag = this._handleDrag.bind(this)
+		this._handleEndDrag = this._handleEndDrag.bind(this)
+		this._handleEndDragControlPoint = this._handleEndDragControlPoint.bind(this)
 	}
 
 	contains(pt: IBaseVector): boolean {
@@ -211,15 +213,21 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 		return true
 	}
 	_handleStartDrag(e) {
+		console.log('START DRAG')
 		if (this.isDrawing) return true
 		this.dragStartX = e.x
 		this.dragStartY = e.y
+		this._tmpX1 = this.x1;
+		this._tmpX2 = this.x2;
 		this.globalMouseDisposable = addDisposableListener(window, EventType.MOUSE_MOVE, this._handleDrag, true)
+		this.panEndDisposable = addDisposableListener(window, EventType.MOUSE_UP, this._handleEndDrag, true)
 		return true
 	}
 	_handleDrag(e) {
+		console.log('DRAGGING')
 		e.preventDefault()
 		e.stopPropagation()
+		let stage = this.root as IStage
 		const rect = this.scaleCanvas.getBoundingClientRect();
 		const x = (e.clientX - rect.left) / (rect.right - rect.left) * this.scaleCanvas.width;
 		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
@@ -227,24 +235,35 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 		let dy = y - this.dragStartY
 		this.dragStartX = x
 		this.dragStartY = y
-		this.x1 = this.x1 + dx;
+		this._tmpX1 = this._tmpX1 + dx;
+		this._tmpX2 = this._tmpX2 + dx;
 		this.y1 = this.y1 + dy;
-		this.x2 = this.x2 + dx;
 		this.y2 = this.y2 + dy;
-		let stage = this.root as IStage
+		const contentWidth = stage.contentWidth
+		const stickLength = stage.stickLength
+		const moveY = stage.moveY
+		const left = (contentWidth - moveY * 2) % stickLength;
+		this.x1 = Math.trunc((this._tmpX1 - left) / stickLength) * stickLength + stickLength / 2 + left
+		this.x2 = Math.trunc((this._tmpX2 - left) / stickLength) * stickLength + stickLength / 2 + left
 		stage.update({x: e.clientX , y: e.clientY})
 	}
 	_handleEndDrag(e){
+		console.log('END DRAG')
 		if (this.isDrawing) return true
+		let stage = this.root as IStage
+		stage.saveUpdate(this.id, this.x1, this.y1, this.x2, this.y2);
 		if (this.globalMouseDisposable) {
 			this.globalMouseDisposable.dispose()
 			this.globalMouseDisposable = null
+		}
+		if (this.panEndDisposable) {
+			this.panEndDisposable.dispose()
+			this.panEndDisposable = null
 		}
 		return true
 	}
 	_handleStartDragControlPoint(e) {
 		if (this.isDrawing) return true
-		e.target.opacity = 0
 		const x = e.x
 		const y = e.y
 		const {target} = e
@@ -259,15 +278,23 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 		}
 
 		this.globalMouseDisposable = addDisposableListener(window, EventType.MOUSE_MOVE, this._handleDragControlPoint, true)
+		this.resizeEndDisposable = addDisposableListener(window, EventType.MOUSE_UP, this._handleEndDragControlPoint, true)
 		return true
 	}
 
 	_handleEndDragControlPoint(e) {
 		if (this.isDrawing) return true
-		e.target.opacity = 1
 		this.draggingPoint = null
-		this.globalMouseDisposable.dispose()
-		this.globalMouseDisposable = null
+		let stage = this.root as IStage
+		stage.saveUpdate(this.id, this.x1, this.y1, this.x2, this.y2);
+		if (this.globalMouseDisposable) {
+			this.globalMouseDisposable.dispose()
+			this.globalMouseDisposable = null
+		}
+		if (this.resizeEndDisposable) {
+			this.resizeEndDisposable.dispose()
+			this.resizeEndDisposable = null
+		}
 		return true
 	}
 
@@ -277,14 +304,19 @@ export class TwoPointDrawing extends Element implements ITwoPointDrawing, IDispo
 		const rect = this.scaleCanvas.getBoundingClientRect();
 		const x = (e.clientX - rect.left) / (rect.right - rect.left) * this.scaleCanvas.width;
 		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
+		let stage = this.root as IStage
+		const contentWidth = stage.contentWidth
+		const stickLength = stage.stickLength
+		const moveY = stage.moveY
+		const left = (contentWidth - moveY * 2) % stickLength;
+		const newX = Math.trunc((x - left) / stickLength) * stickLength + stickLength / 2 + left
 		if (this.draggingPoint === this.firstLollipop) {
-			this.x1 = x
+			this.x1 = newX
 			this.y1 = y
 		} else {
-			this.x2 = x
+			this.x2 = newX
 			this.y2 = y
 		}
-		let stage = this.root as IStage
 		stage.update({x: e.clientX , y: e.clientY})
 	}
 
@@ -373,6 +405,9 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 	_y2: number
 	_x3: number
 	_y3: number
+	_tmpX1: number
+	_tmpX2: number
+	_tmpX3: number
 	dragStartX: number
 	dragStartY: number
 	scaleCanvas: HTMLCanvasElement
@@ -382,7 +417,8 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 
 	toDispose: IDisposable[] = []
 	globalMouseDisposable: IDisposable
-
+	panEndDisposable: IDisposable
+	resizeEndDisposable: IDisposable
 	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
 		super()
 
@@ -406,15 +442,17 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 		this.toDispose.push(this.on(EventType.MOUSE_OVER, this._handleMouseEnter.bind(this)))
 		this.toDispose.push(this.on(EventType.MOUSE_OUT, this._handleMouseLeave.bind(this)))
 		this.toDispose.push(this.on(EventType.MOUSE_DOWN, this._handleStartDrag.bind(this)))
-		this.toDispose.push(this.on(EventType.MOUSE_UP, this._handleEndDrag.bind(this)))
+		// this.toDispose.push(this.on(EventType.MOUSE_UP, this._handleEndDrag.bind(this)))
 		this.toDispose.push(this.firstLollipop.on(EventType.MOUSE_DOWN, this._handleStartDragControlPoint.bind(this)))
 		this.toDispose.push(this.secondLollipop.on(EventType.MOUSE_DOWN, this._handleStartDragControlPoint.bind(this)))
 		this.toDispose.push(this.thirdLollipop.on(EventType.MOUSE_DOWN, this._handleStartDragControlPoint.bind(this)))
-		this.toDispose.push(this.firstLollipop.on(EventType.MOUSE_UP, this._handleEndDragControlPoint.bind(this)))
-		this.toDispose.push(this.secondLollipop.on(EventType.MOUSE_UP, this._handleEndDragControlPoint.bind(this)))
-		this.toDispose.push(this.thirdLollipop.on(EventType.MOUSE_UP, this._handleEndDragControlPoint.bind(this)))
+		// this.toDispose.push(this.firstLollipop.on(EventType.MOUSE_UP, this._handleEndDragControlPoint.bind(this)))
+		// this.toDispose.push(this.secondLollipop.on(EventType.MOUSE_UP, this._handleEndDragControlPoint.bind(this)))
+		// this.toDispose.push(this.thirdLollipop.on(EventType.MOUSE_UP, this._handleEndDragControlPoint.bind(this)))
 		this._handleDragControlPoint = this._handleDragControlPoint.bind(this)
 		this._handleDrag = this._handleDrag.bind(this)
+		this._handleEndDrag = this._handleEndDrag.bind(this)
+		this._handleEndDragControlPoint = this._handleEndDragControlPoint.bind(this)
 	}
 
 	get firstLollipop() {
@@ -447,15 +485,22 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 		return true
 	}
 	_handleStartDrag(e) {
+		console.log('START DRAG')
 		if (this.isDrawing) return true
 		this.dragStartX = e.x
 		this.dragStartY = e.y
+		this._tmpX1 = this.x1;
+		this._tmpX2 = this.x2;
+		this._tmpX3 = this.x3;
 		this.globalMouseDisposable = addDisposableListener(window, EventType.MOUSE_MOVE, this._handleDrag, true)
+		this.panEndDisposable = addDisposableListener(window, EventType.MOUSE_UP, this._handleEndDrag, true)
 		return true
 	}
 	_handleDrag(e) {
+		console.log('DRAGGING')
 		e.preventDefault()
 		e.stopPropagation()
+		let stage = this.root as IStage
 		const rect = this.scaleCanvas.getBoundingClientRect();
 		const x = (e.clientX - rect.left) / (rect.right - rect.left) * this.scaleCanvas.width;
 		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
@@ -463,25 +508,37 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 		let dy = y - this.dragStartY
 		this.dragStartX = x
 		this.dragStartY = y
-		this.x1 = this.x1 + dx;
+		this._tmpX1 = this._tmpX1 + dx;
+		this._tmpX2 = this._tmpX2 + dx;
+		this._tmpX3 = this._tmpX3 + dx;
 		this.y1 = this.y1 + dy;
-		this.x2 = this.x2 + dx;
 		this.y2 = this.y2 + dy;
-		this.x3 = this.x3 + dx;
 		this.y3 = this.y3 + dy;
-		let stage = this.root as IStage
+		const contentWidth = stage.contentWidth
+		const stickLength = stage.stickLength
+		const moveY = stage.moveY
+		const left = (contentWidth - moveY * 2) % stickLength;
+		this.x1 = Math.trunc((this._tmpX1 - left) / stickLength) * stickLength + stickLength / 2 + left
+		this.x2 = Math.trunc((this._tmpX2 - left) / stickLength) * stickLength + stickLength / 2 + left
+		this.x3 = Math.trunc((this._tmpX3 - left) / stickLength) * stickLength + stickLength / 2 + left
 		stage.update({x: e.clientX , y: e.clientY})
 	}
 	_handleEndDrag(e){
+		console.log('END DRAG')
 		if (this.isDrawing) return true
+		let stage = this.root as IStage
+		stage.saveUpdate(this.id, this.x1, this.y1, this.x2, this.y2, this.x3, this.y3);
 		if (this.globalMouseDisposable) {
 			this.globalMouseDisposable.dispose()
 			this.globalMouseDisposable = null
 		}
+		if (this.panEndDisposable) {
+			this.panEndDisposable.dispose()
+			this.panEndDisposable = null
+		}
 		return true
 	}
 	_handleStartDragControlPoint(e) {
-		e.target.opacity = 0
 		const x = e.x
 		const y = e.y
 		const {target} = e
@@ -500,14 +557,23 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 		}
 
 		this.globalMouseDisposable = addDisposableListener(window, EventType.MOUSE_MOVE, this._handleDragControlPoint, true)
+		this.resizeEndDisposable = addDisposableListener(window, EventType.MOUSE_UP, this._handleEndDragControlPoint, true)
 		return true
 	}
 
 	_handleEndDragControlPoint(e) {
-		this.draggingPoint.opacity = 1
+		if (this.isDrawing) return true
 		this.draggingPoint = null
-		this.globalMouseDisposable.dispose()
-		this.globalMouseDisposable = null
+		let stage = this.root as IStage
+		stage.saveUpdate(this.id, this.x1, this.y1, this.x2, this.y2, this.x3, this.y3);
+		if (this.globalMouseDisposable) {
+			this.globalMouseDisposable.dispose()
+			this.globalMouseDisposable = null
+		}
+		if (this.resizeEndDisposable) {
+			this.resizeEndDisposable.dispose()
+			this.resizeEndDisposable = null
+		}
 		return true
 	}
 
@@ -517,17 +583,22 @@ export class ThreePointDrawing extends Element implements IThreePointDrawing, ID
 		const rect = this.scaleCanvas.getBoundingClientRect();
 		const x = (e.clientX - rect.left) / (rect.right - rect.left) * this.scaleCanvas.width;
 		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
+		let stage = this.root as IStage
+		const contentWidth = stage.contentWidth
+		const stickLength = stage.stickLength
+		const moveY = stage.moveY
+		const left = (contentWidth - moveY * 2) % stickLength;
+		const newX = Math.trunc((x - left) / stickLength) * stickLength + stickLength / 2 + left
 		if (this.draggingPoint === this.firstLollipop) {
-			this.x1 = x
+			this.x1 = newX
 			this.y1 = y
 		} else if (this.draggingPoint === this.secondLollipop) {
-			this.x2 = x
+			this.x2 = newX
 			this.y2 = y
 		} else {
-			this.x3 = x
+			this.x3 = newX
 			this.y3 = y
 		}
-		let stage = this.root as IStage
 		stage.update({x: e.clientX , y: e.clientY})
 	}
 

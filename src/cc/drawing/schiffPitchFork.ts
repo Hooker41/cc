@@ -17,12 +17,14 @@ export class SchiffPitchFork extends ThreePointDrawing {
 	line4: ILine
 	line5: ILine
 	line6: ILine
-
-	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+	initHeight: number
+	initWidth: number
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement, initWidth: number, initHeight: number) {
 		super(l, scaleCanvas)
 
 		this.type = SchiffPitchFork.type
-
+		this.initHeight = initHeight
+		this.initWidth = initWidth
 		this.line0 = new Line(l)
 		this.line1 = new Line(l)
 		this.line2 = new Line(l)
@@ -118,9 +120,15 @@ export class SchiffPitchFork extends ThreePointDrawing {
 		let offset5 = BaseLine.verticalOffsetOfParallelLine(origin.x, origin.y, pt3.x, pt3.y, pt5.x, pt5.y)
 
 		let stage = this.root as IStage
-		if (!stage) return
-
-		const {width, height} = stage.bounds
+		let width = undefined
+		let height = undefined
+		if (!stage) {
+			width = this.initWidth
+			height = this.initHeight
+		} else {
+			width = stage.bounds.width
+			height = stage.bounds.height
+		}
 		let remotePoint1 = BaseLine.remotePointOfRay(origin.x, origin.y + offset1, pt3.x, pt3.y + offset1, width, height)
 		let remotePoint2 = BaseLine.remotePointOfRay(origin.x, origin.y + offset2, pt3.x, pt3.y + offset2, width, height)
 		let remotePoint3 = BaseLine.remotePointOfRay(origin.x, origin.y, pt3.x, pt3.y, width, height)

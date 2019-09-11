@@ -16,12 +16,14 @@ export class PitchFan extends ThreePointDrawing {
 	line3: ILine
 	line4: ILine
 	line5: ILine
-
-	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+	initHeight: number
+	initWidth: number
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement, initWidth: number, initHeight: number) {
 		super(l, scaleCanvas)
 
 		this.type = PitchFan.type
-
+		this.initHeight = initHeight
+		this.initWidth = initWidth
 		this.line0 = new Line(l)
 		this.line1 = new Line(l)
 		this.line2 = new Line(l)
@@ -104,9 +106,15 @@ export class PitchFan extends ThreePointDrawing {
 		let pt5 = {x: _x3, y: _y3}
 
 		let stage = this.root as IStage
-		if (!stage) return
-
-		const {width, height} = stage.bounds
+		let width = undefined
+		let height = undefined
+		if (!stage) {
+			width = this.initWidth
+			height = this.initHeight
+		} else {
+			width = stage.bounds.width
+			height = stage.bounds.height
+		}
 		let remotePoint1 = BaseLine.remotePointOfRay(_x1, _y1, pt1.x, pt1.y, width, height)
 		let remotePoint2 = BaseLine.remotePointOfRay(_x1, _y1, pt2.x, pt2.y, width, height)
 		let remotePoint3 = BaseLine.remotePointOfRay(_x1, _y1, pt3.x, pt3.y, width, height)

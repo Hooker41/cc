@@ -50,9 +50,13 @@ function proxyChildrenEffect(constructor: any): any {
 export class Stage extends Node implements IStage, IDisposable {
   protected toDispose: IDisposable[] = []
   bounds: IBaseRectangle
-  private eventHandler: EventHandler
   public animator: Animator
   public movehandler: Function
+  public saveUpdate: Function
+  public contentWidth: number
+  public moveY: number
+  public stickLength: number
+  private eventHandler: EventHandler
   constructor(public container: HTMLDivElement, public scaleCanvas: HTMLCanvasElement, movehandler: Function, option: IStageInitOption = {}) {
     super()
     this.bounds = {width: getContentWidth(container), height: getContentHeight(container), x: 0, y: 0}

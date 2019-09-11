@@ -19,7 +19,7 @@ export class FibonacciCircles extends TwoPointDrawing implements ITrendLine {
 		const {x1, y1, x2, y2} = l
 		let origin = Vector.midPoint({x: x1, y: y1}, {x: x2, y: y2})
 		for (let i = 0, len = FibonacciCircles.ratios.length; i < len; i++) {
-			this.circles.push(new Ellipse({cx: origin.x, cy: origin.y, r1: 0, r2: 0}))
+			this.circles.push(new Ellipse({cx: origin.x, cy: origin.y, r1: 0, r2: 0, angle: 0}))
 		}
 		this._recalculateLines()
 	}

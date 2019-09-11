@@ -17,12 +17,14 @@ export class InsidePitchFork extends ThreePointDrawing {
 	line4: ILine
 	line5: ILine
 	line6: ILine
-
-	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+	initHeight: number
+	initWidth: number
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement, initWidth: number, initHeight: number) {
 		super(l, scaleCanvas)
 
 		this.type = InsidePitchFork.type
-
+		this.initHeight = initHeight
+		this.initWidth = initWidth
 		this.line0 = new Line(l)
 		this.line1 = new Line(l)
 		this.line2 = new Line(l)
@@ -118,9 +120,16 @@ export class InsidePitchFork extends ThreePointDrawing {
 		let offset4 = BaseLine.verticalOffsetOfParallelLine(origin.x, origin.y, pt5.x, pt5.y, pt4.x, pt4.y)
 
 		let stage = this.root as IStage
-		if (!stage) return
+		let width = undefined
+		let height = undefined
+		if (!stage) {
+			width = this.initWidth
+			height = this.initHeight
+		} else {
+			width = stage.bounds.width
+			height = stage.bounds.height
+		}
 
-		const {width, height} = stage.bounds
 		let remotePoint1 = BaseLine.remotePointOfRay(origin.x, origin.y + offset1, pt5.x, pt5.y + offset1, width, height)
 		let remotePoint2 = BaseLine.remotePointOfRay(origin.x, origin.y + offset2, pt5.x, pt5.y + offset2, width, height)
 		let remotePoint3 = BaseLine.remotePointOfRay(origin.x, origin.y + offset3, pt5.x, pt5.y + offset3, width, height)

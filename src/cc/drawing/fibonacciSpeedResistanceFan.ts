@@ -13,8 +13,9 @@ export class FibonacciSpeedResistanceFan extends ThreePointDrawing {
 	verticalLines: ILine[]
 	leftFanLines: ILine[]
 	rightFanlines: ILine[]
-
-	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+	initHeight: number
+	initWidth: number
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement, initWidth: number, initHeight: number) {
 		super(l, scaleCanvas)
 		this.type = FibonacciSpeedResistanceFan.type
 
@@ -22,7 +23,8 @@ export class FibonacciSpeedResistanceFan extends ThreePointDrawing {
 		this.verticalLines = []
 		this.leftFanLines = []
 		this.rightFanlines = []
-
+		this.initHeight = initHeight
+		this.initWidth = initWidth
 		for (let i = 0, len = FibonacciSpeedResistanceFan.ratios.length; i < len; i++) {
 			this.horizontalLines.push(new Line(l))
 			this.verticalLines.push(new Line(l))
@@ -94,9 +96,15 @@ export class FibonacciSpeedResistanceFan extends ThreePointDrawing {
 		const {_x1, _y1, _x2, _y2} = this
 
 		let stage = this.root as IStage
-		if (!stage) return
-
-		const {width, height} = stage.bounds
+		let width = undefined
+		let height = undefined
+		if (!stage) {
+			width = this.initWidth
+			height = this.initHeight
+		} else {
+			width = stage.bounds.width
+			height = stage.bounds.height
+		}
 
 		let dx = _x2 - _x1
 		let dy = _y2 - _y1
