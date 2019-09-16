@@ -3,6 +3,7 @@ import {IThreePointDrawing} from "./def";
 import {IArc, ILine} from "../path/def";
 import {Vector} from "../core/vector";
 import {Arc} from "../path/arc";
+import { Color } from "../core";
 
 export class FibonacciWedge extends ThreePointDrawing {
 	static type = 'FibonacciWedge'
@@ -87,7 +88,31 @@ export class FibonacciWedge extends ThreePointDrawing {
 		if (this.lollipops && this.lollipops[2]) this.lollipops[2].cy = val
 		this._recalculateLines()
 	}
-
+	set setStrokeWidth(val: number) {
+		this.strokeWidth = val
+		for (let i = 0, len = FibonacciWedge.ratios.length; i < len; i++) {
+			this.arcs[i].strokeWidth = val;
+		}
+	}
+	set setStrokeColor(hex: string) {
+		this.strokeColor = Color.fromHex(hex)
+		for (let i = 0, len = FibonacciWedge.ratios.length; i < len; i++) {
+			this.arcs[i].strokeColor = Color.fromHex(hex)
+		}
+	}
+	set setLineStyle(style: string) {
+		let dashArray = undefined;
+		if (style === 'line') {
+			dashArray = []
+		} if (style === 'dash') {
+			dashArray = [10, 15]
+		} if (style === 'dot') {
+			dashArray = [5, 8]
+		}
+		for (let i = 0, len = FibonacciWedge.ratios.length; i < len; i++) {
+			this.arcs[i].dashArray = dashArray
+		}
+	}
 	_recalculateLines() {
 		const {_x1, _y1, _x2, _y2, _x3, _y3} = this
 

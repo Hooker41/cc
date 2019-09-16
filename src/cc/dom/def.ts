@@ -67,6 +67,7 @@ export interface IStage extends INode, IContainer {
   moveY: number
   stickLength: number
   saveUpdate: Function
+  showContextMenu: Function
 }
 
 export interface IStageInitOption {

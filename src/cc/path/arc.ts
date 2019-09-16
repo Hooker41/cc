@@ -159,6 +159,8 @@ export class Arc extends Element implements IArc {
 		ctx.beginPath()
 		ctx.arc(this.center.x, this.center.y, this.radius, this.startRadian, this.endRadian, this.anticlockwise)
 		ctx.strokeStyle = this.strokeColor.toString()
+		ctx.lineWidth = this.strokeWidth
+		ctx.setLineDash(this.dashArray)
 		// ctx.closePath()
 		ctx.stroke()
 		ctx.restore()

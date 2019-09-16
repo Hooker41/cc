@@ -3,6 +3,7 @@ import {IThreePointDrawing} from "./def";
 import {ILine} from "../path/def";
 import {Line} from "../path/line";
 import {IStage} from "../dom/def";
+import { Color } from "../core";
 
 export class TrendBasedFibonacciTimeZone extends ThreePointDrawing {
 	static type = 'TrendBasedFibonacciTimeZone'
@@ -86,7 +87,37 @@ export class TrendBasedFibonacciTimeZone extends ThreePointDrawing {
 		if (this.lollipops && this.lollipops[2]) this.lollipops[2].cy = val
 		this._recalculateLines()
 	}
-
+	set setStrokeWidth(val: number) {
+		this.strokeWidth = val
+		this.line0.strokeWidth = val;
+		this.line1.strokeWidth = val;
+		for (let i = 0, len = TrendBasedFibonacciTimeZone.ratios.length; i < len; i++) {
+			this.fibLines[i].strokeWidth = val;
+		}
+	}
+	set setStrokeColor(hex: string) {
+		this.strokeColor = Color.fromHex(hex)
+		this.line0.strokeColor = Color.fromHex(hex)
+		this.line1.strokeColor = Color.fromHex(hex)
+		for (let i = 0, len = TrendBasedFibonacciTimeZone.ratios.length; i < len; i++) {
+			this.fibLines[i].strokeColor = Color.fromHex(hex)
+		}
+	}
+	set setLineStyle(style: string) {
+		let dashArray = undefined;
+		if (style === 'line') {
+			dashArray = []
+		} if (style === 'dash') {
+			dashArray = [10, 15]
+		} if (style === 'dot') {
+			dashArray = [5, 8]
+		}
+		this.line0.dashArray = dashArray
+		this.line1.dashArray = dashArray
+		for (let i = 0, len = TrendBasedFibonacciTimeZone.ratios.length; i < len; i++) {
+			this.fibLines[i].dashArray = dashArray
+		}
+	}
 	_recalculateLines() {
 		const {_x1, _y1, _x2, _y2, _x3, _y3} = this
 

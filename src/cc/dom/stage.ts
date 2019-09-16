@@ -53,6 +53,7 @@ export class Stage extends Node implements IStage, IDisposable {
   public animator: Animator
   public movehandler: Function
   public saveUpdate: Function
+  public showContextMenu: Function
   public contentWidth: number
   public moveY: number
   public stickLength: number

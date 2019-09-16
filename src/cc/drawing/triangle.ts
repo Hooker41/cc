@@ -2,6 +2,7 @@ import {ThreePointDrawing} from "./drawing";
 import {IThreePointDrawing} from "./def";
 import {ILine} from "../path/def";
 import {Line} from "../path/line";
+import { Color } from "../core";
 
 export class Triangle extends ThreePointDrawing {
 	static type = 'Triangle'
@@ -110,7 +111,29 @@ export class Triangle extends ThreePointDrawing {
 		if (this.line2.contains(point)) return this
 		return null
 	}
-
+	set setStrokeWidth(val: number) {
+		this.line0.strokeWidth = val
+		this.line1.strokeWidth = val
+		this.line2.strokeWidth = val
+	}
+	set setStrokeColor(hex: string) {
+		this.line0.strokeColor = Color.fromHex(hex)
+		this.line1.strokeColor = Color.fromHex(hex)
+		this.line2.strokeColor = Color.fromHex(hex)
+	}
+	set setLineStyle(style: string) {
+		let dashArray = undefined
+		if (style === 'line') {
+			dashArray = []
+		} if (style === 'dash') {
+			dashArray = [10, 15]
+		} if (style === 'dot') {
+			dashArray = [5, 8]
+		}
+		this.line0.dashArray = dashArray
+		this.line1.dashArray = dashArray
+		this.line2.dashArray = dashArray
+	}
 	render(ctx) {
 		if (!this.isVisible) return
 		if (this.opacity === 0) return

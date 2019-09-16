@@ -2,6 +2,7 @@ import {ILine} from "../path/def";
 import {Line} from "../path/line";
 import {TwoPointDrawing} from "./drawing";
 import {ITrendLine, ITwoPointDrawing} from "./def";
+import { Color } from "../core";
 
 export class TrendLine extends TwoPointDrawing implements ITrendLine {
 	line: ILine
@@ -56,6 +57,21 @@ export class TrendLine extends TwoPointDrawing implements ITrendLine {
 		if (this.lollipops && this.lollipops[1]) this.lollipops[1].cy = val
 	}
 
+	set setStrokeWidth(val: number) {
+		this.line.strokeWidth = val
+	}
+	set setStrokeColor(hex: string) {
+		this.line.strokeColor = Color.fromHex(hex)
+	}
+	set setLineStyle(style: string) {
+		if (style === 'line') {
+			this.line.dashArray = []
+		} if (style === 'dash') {
+			this.line.dashArray = [10, 15]
+		} if (style === 'dot') {
+			this.line.dashArray = [5, 8]
+		}
+	}
 	hitTest(point) {
 		if (!this.isVisible) return null
 

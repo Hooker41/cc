@@ -12,10 +12,6 @@ export class Brush extends TwoPointDrawing {
 	static type = 'Brush'
 	lines: ILine[]
 
-	// for drag
-	startX: number
-	startY: number
-
 	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
 		super(l, scaleCanvas)
 		this.type = Brush.type
@@ -24,25 +20,32 @@ export class Brush extends TwoPointDrawing {
 		// this.lines.push(new Line(l))
 	}
 	_handleStartDrag(e) {
-		this.startX = e.x
-		this.startY = e.y
+		this.dragStartX = e.x
+		this.dragStartY = e.y
+		this._tmpX1 = e.x;
 		this.globalMouseDisposable = addDisposableListener(window, EventType.MOUSE_MOVE, this._handleDragControlPoint, true)
+		this.panEndDisposable = addDisposableListener(window, EventType.MOUSE_UP, this._handleEndDrag, true)
 		return true
 	}
 	_handleEndDrag(e){
 		if (this.isDrawing) return true
-		this.draggingPoint = null
+		let stage = this.root as IStage
+		stage.saveUpdate(this.id, this.x1, this.y1, this.x2, this.y2, undefined, undefined, this.lines);
 		if (this.globalMouseDisposable) {
 			this.globalMouseDisposable.dispose()
 			this.globalMouseDisposable = null
 		}
+		if (this.panEndDisposable) {
+			this.panEndDisposable.dispose()
+			this.panEndDisposable = null
+		}
 		return true
 	}
 	_handleStartDragControlPoint(e) {
-		this.startX = e.x
-		this.startY = e.y
-		e.target.opacity = 0
+		this.dragStartX = e.x
+		this.dragStartY = e.y
 		this.globalMouseDisposable = addDisposableListener(window, EventType.MOUSE_MOVE, this._handleDragControlPoint, true)
+		this.panEndDisposable = addDisposableListener(window, EventType.MOUSE_UP, this._handleEndDrag, true)
 		return true
 	}
 
@@ -52,11 +55,17 @@ export class Brush extends TwoPointDrawing {
 		const rect = this.scaleCanvas.getBoundingClientRect();
 		const x = (e.clientX - rect.left) / (rect.right - rect.left) * this.scaleCanvas.width;
 		const y = (e.clientY - rect.top) / (rect.bottom - rect.top) * this.scaleCanvas.height;
-		let dx = x - this.startX
-		let dy = y - this.startY
-		this.startX = x
-		this.startY = y
-		this.translate({x: dx, y: dy})
+		let dy = y - this.dragStartY
+		this.dragStartY = y
+		let stage = this.root as IStage
+		const contentWidth = stage.contentWidth
+		const stickLength = stage.stickLength
+		const moveY = stage.moveY
+		const left = (contentWidth - moveY * 2) % stickLength;
+		const newX1 = Math.trunc((x - left) / stickLength) * stickLength + stickLength / 2 + left
+		const newDx = newX1 - this.dragStartX;
+		this.dragStartX = newX1;
+		this.translate({x: newDx, y: dy})
 		// this.lollipops.forEach(l => {
 		// 	l.cx = l.cx + dx
 		// 	l.cy = l.cy + dy
@@ -67,8 +76,6 @@ export class Brush extends TwoPointDrawing {
 		// 	l.x2 = l.x2 + dx
 		// 	l.y2 = l.y2 + dy
 		// })
-
-		let stage = this.root as IStage
 		stage.update({x: e.clientX , y: e.clientY})
 	}
 

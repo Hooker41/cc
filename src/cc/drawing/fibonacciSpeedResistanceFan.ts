@@ -4,6 +4,7 @@ import {ThreePointDrawing} from "./drawing";
 import {IThreePointDrawing} from "./def";
 import {IStage} from "../dom/def";
 import {Line as BaseLine} from "../core/line";
+import { Color } from "../core";
 
 export class FibonacciSpeedResistanceFan extends ThreePointDrawing {
 	static type = 'FibonacciSpeedResistanceFan'
@@ -91,7 +92,40 @@ export class FibonacciSpeedResistanceFan extends ThreePointDrawing {
 		if (this.lollipops && this.lollipops[2]) this.lollipops[2].cy = val
 		this._recalculateLines()
 	}
-
+	set setStrokeWidth(val: number) {
+		this.strokeWidth = val
+		for (let i = 0, len = FibonacciSpeedResistanceFan.ratios.length; i < len; i++) {
+			this.horizontalLines[i].strokeWidth = val;
+			this.verticalLines[i].strokeWidth = val;
+			this.leftFanLines[i].strokeWidth = val;
+			this.rightFanlines[i].strokeWidth = val;
+		}
+	}
+	set setStrokeColor(hex: string) {
+		this.strokeColor = Color.fromHex(hex)
+		for (let i = 0, len = FibonacciSpeedResistanceFan.ratios.length; i < len; i++) {
+			this.horizontalLines[i].strokeColor = Color.fromHex(hex)
+			this.verticalLines[i].strokeColor = Color.fromHex(hex)
+			this.leftFanLines[i].strokeColor = Color.fromHex(hex)
+			this.rightFanlines[i].strokeColor = Color.fromHex(hex)
+		}
+	}
+	set setLineStyle(style: string) {
+		let dashArray = undefined;
+		if (style === 'line') {
+			dashArray = []
+		} if (style === 'dash') {
+			dashArray = [10, 15]
+		} if (style === 'dot') {
+			dashArray = [5, 8]
+		}
+		for (let i = 0, len = FibonacciSpeedResistanceFan.ratios.length; i < len; i++) {
+			this.horizontalLines[i].dashArray = dashArray
+			this.verticalLines[i].dashArray = dashArray
+			this.leftFanLines[i].dashArray = dashArray
+			this.rightFanlines[i].dashArray = dashArray
+		}
+	}
 	_recalculateLines() {
 		const {_x1, _y1, _x2, _y2} = this
 

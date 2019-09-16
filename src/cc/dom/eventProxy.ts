@@ -55,12 +55,19 @@ export class EventProxy implements IEventProxy, IDisposable {
 		this.toDispose.push(addDisposableListener(this.target, EventType.MOUSE_UP, this.handleMouseUp.bind(this), true))
 		this.toDispose.push(addDisposableListener(this.target, EventType.MOUSE_MOVE, this.handleMouseMove.bind(this), true))
 		this.toDispose.push(addDisposableListener(this.target, EventType.CLICK, this.handleMouseClick.bind(this), true))
+		this.toDispose.push(addDisposableListener(this.target, EventType.CONTEXT_MENU, this.handleContextMenu.bind(this), true))
 	}
-
+	private handleContextMenu(e: MouseEvent) {
+		e.preventDefault()
+		// e.stopImmediatePropagation()
+		this._onMouseEvent.fire(makeSyntheticEvent(e, this.target,  this.scaleCanvas, EventType.CONTEXT_MENU))
+	}
 	private handleMouseDown(e: MouseEvent) {
 		// e.preventDefault()
 		// e.stopImmediatePropagation()
-		this._onMouseEvent.fire(makeSyntheticEvent(e, this.target, this.scaleCanvas, EventType.MOUSE_DOWN))
+		if (e.which === 1) {
+			this._onMouseEvent.fire(makeSyntheticEvent(e, this.target, this.scaleCanvas, EventType.MOUSE_DOWN))
+		}
 	}
 
 	private handleMouseClick(e: MouseEvent) {

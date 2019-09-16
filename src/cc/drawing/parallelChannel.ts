@@ -6,6 +6,7 @@ import {Line as BaseLine} from "../core/line";
 import {IDisposable} from "../../base/common/lifecycle";
 import {addDisposableListener, EventType} from "../../base/browser/event";
 import {IStage} from "../dom/def";
+import { Color } from "../core";
 
 export class ParallelChannel extends ThreePointDrawing {
 	static type = 'ParallelChannel'
@@ -110,14 +111,28 @@ export class ParallelChannel extends ThreePointDrawing {
 		if (BaseLine.contains(this.x1, this.y1 + offset, this.x2, this.y2 + offset, this.strokeWidth + this.hitRange, point.x, point.y)) return this
 		return null
 	}
-
+	set setStrokeWidth(val: number) {
+		this.strokeWidth = val
+	}
+	set setStrokeColor(hex: string) {
+		this.strokeColor = Color.fromHex(hex)
+	}
+	set setLineStyle(style: string) {
+		if (style === 'line') {
+			this.dashArray = []
+		} if (style === 'dash') {
+			this.dashArray = [10, 15]
+		} if (style === 'dot') {
+			this.dashArray = [5, 8]
+		}
+	}
 	render(ctx) {
 		if (!this.isVisible) return
 		if (this.opacity === 0) return
 		ctx.save()
-
 		ctx.lineWidth = this.strokeWidth
 		ctx.strokeStyle = this.strokeColor.toString()
+		ctx.setLineDash(this.dashArray)
 		let mx = this.matrix
 		ctx.transform(mx.a, mx.b, mx.c, mx.d, mx.tx, mx.ty)
 		ctx.beginPath()
@@ -130,6 +145,7 @@ export class ParallelChannel extends ThreePointDrawing {
 
 		ctx.closePath()
 		ctx.stroke()
+		ctx.restore()
 
 		if (!this.isDrawing && (this._isHovered || this._isSelected)) {
 			for (let i = 0; i < 3; i++) {

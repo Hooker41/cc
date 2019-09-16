@@ -35,6 +35,7 @@ export interface IBaseEllipse {
 	cy: number
 	r1: number, // major
 	r2: number, // minor
+	angle: number
 }
 
 export interface IEllipse extends IBaseEllipse, IElement {

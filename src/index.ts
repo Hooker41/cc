@@ -5,7 +5,7 @@ export * from './cc/ease'
 export * from './cc/selection'
 export * from './cc/transition'
 export * from './cc/typography'
-
+export * from './base/common/uuid'
 import * as p from './cc/path'
 
 export const path = p

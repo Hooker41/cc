@@ -20,7 +20,7 @@ export class Ellipse extends ThreePointDrawing {
 		let r2 = Line.distanceBetween(Line.fromTwoPoint({x: l.x1, y: l.y1}, {x: l.x2, y: l.y2}), {x: l.x3, y: l.y3})
 		let angle = Vector.angle({x: l.x2 - l.x1, y: l.y2 - l.y1})
 		let r1 = Vector.distanceBetween(midPoint, {x: l.x1, y: l.y1})
-		this.ellipse = new BaseEllipse({cx: midPoint.x, cy: midPoint.y, r1, r2})
+		this.ellipse = new BaseEllipse({cx: midPoint.x, cy: midPoint.y, r1, r2, angle: 0})
 		// this.ellipse.matrix = Matrix.rotate(this.ellipse.matrix, angle)
 	}
 	get x1() {
@@ -92,9 +92,9 @@ export class Ellipse extends ThreePointDrawing {
 		this.ellipse.cy = midPoint.y
 		this.ellipse.r1 = r1
 		this.ellipse.r2 = r2
+		this.ellipse.angle = angle
 		this.ellipse.matrix = Matrix.rotate(Matrix.initial, angle)
-		// let mx = Matrix.rotate(this.ellipse.matrix, angle)
-		// console.log(mx)
+		// this.ellipse.matrix = Matrix.rotate(this.ellipse.matrix, angle)
 	}
 
 	hitTest(point) {

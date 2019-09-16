@@ -8,6 +8,7 @@ import {IText, TextAlign, TextBaseLine} from "../typography/def";
 import {Text} from '../typography/text'
 import {addDisposableListener, EventType} from "../../base/browser/event";
 import {IStage} from "../dom/def";
+import { Color } from "../core";
 
 export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 	line: ILine
@@ -142,7 +143,23 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 		this.label.value = `${-angle}°`
 		if (this.lollipops && this.lollipops[1]) this.lollipops[1].cy = val
 	}
-
+	set setStrokeWidth(val: number) {
+		this.line.strokeWidth = val
+	}
+	set setStrokeColor(hex: string) {
+		this.line.strokeColor = Color.fromHex(hex)
+		this.horizontalLine.strokeColor = Color.fromHex(hex)
+		this.arc.strokeColor = Color.fromHex(hex)
+	}
+	set setLineStyle(style: string) {
+		if (style === 'line') {
+			this.line.dashArray = []
+		} if (style === 'dash') {
+			this.line.dashArray = [10, 15]
+		} if (style === 'dot') {
+			this.line.dashArray = [5, 8]
+		}
+	}
 	hitTest(point) {
 		if (!this.isVisible) return null
 

@@ -4,6 +4,7 @@ import {TwoPointDrawing} from "./drawing";
 import {ITrendLine, ITwoPointDrawing} from "./def";
 import {IStage} from "../dom/def";
 import {Line as BaseLine} from "../core/line";
+import { Color } from "../core";
 
 export class GannFan extends TwoPointDrawing implements ITrendLine {
 	static type = 'GannFan'
@@ -61,7 +62,31 @@ export class GannFan extends TwoPointDrawing implements ITrendLine {
 		if (this.lollipops && this.lollipops[1]) this.lollipops[1].cy = val
 		this._recalculateLines()
 	}
-
+	set setStrokeWidth(val: number) {
+		this.strokeWidth = val
+		for (let i = 0, len = GannFan.ratios.length; i < len; i++) {
+			this.lines[i].strokeWidth = val;
+		}
+	}
+	set setStrokeColor(hex: string) {
+		this.strokeColor = Color.fromHex(hex)
+		for (let i = 0, len = GannFan.ratios.length; i < len; i++) {
+			this.lines[i].strokeColor = Color.fromHex(hex)
+		}
+	}
+	set setLineStyle(style: string) {
+		let dashArray = undefined;
+		if (style === 'line') {
+			dashArray = []
+		} if (style === 'dash') {
+			dashArray = [10, 15]
+		} if (style === 'dot') {
+			dashArray = [5, 8]
+		}
+		for (let i = 0, len = GannFan.ratios.length; i < len; i++) {
+			this.lines[i].dashArray = dashArray
+		}
+	}
 	_recalculateLines() {
 		const {_x1, _y1, _x2, _y2} = this
 

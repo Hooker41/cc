@@ -3,6 +3,7 @@ import {Line} from "../path/line";
 import {TwoPointDrawing} from "./drawing";
 import {ITwoPointDrawing} from "./def";
 import {IStage} from "../dom/def";
+import { Color } from "../core";
 
 export class FibonacciTimeZone extends TwoPointDrawing {
 	static type = 'FibonacciTimeZone'
@@ -60,7 +61,31 @@ export class FibonacciTimeZone extends TwoPointDrawing {
 		if (this.lollipops && this.lollipops[1]) this.lollipops[1].cy = val
 		this._recalculateLines()
 	}
-
+	set setStrokeWidth(val: number) {
+		this.strokeWidth = val
+		for (let i = 0, len = FibonacciTimeZone.ratios.length; i < len; i++) {
+			this.lines[i].strokeWidth = val;
+		}
+	}
+	set setStrokeColor(hex: string) {
+		this.strokeColor = Color.fromHex(hex)
+		for (let i = 0, len = FibonacciTimeZone.ratios.length; i < len; i++) {
+			this.lines[i].strokeColor = Color.fromHex(hex)
+		}
+	}
+	set setLineStyle(style: string) {
+		let dashArray = undefined;
+		if (style === 'line') {
+			dashArray = []
+		} if (style === 'dash') {
+			dashArray = [10, 15]
+		} if (style === 'dot') {
+			dashArray = [5, 8]
+		}
+		for (let i = 0, len = FibonacciTimeZone.ratios.length; i < len; i++) {
+			this.lines[i].dashArray = dashArray
+		}
+	}
 	_recalculateLines() {
 		const {_x1, _y1, _x2, _y2} = this
 

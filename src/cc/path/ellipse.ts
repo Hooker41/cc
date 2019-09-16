@@ -11,7 +11,7 @@ export class Ellipse extends Element implements IEllipse {
 	cy: number
 	r1: number
 	r2: number
-
+	angle: number
 	constructor(e: IBaseEllipse) {
 		super(null)
 
@@ -21,7 +21,7 @@ export class Ellipse extends Element implements IEllipse {
 		this.cy = e.cy
 		this.r1 = e.r1
 		this.r2 = e.r2
-
+		this.angle = 0
 	}
 
 	get bounds() {
@@ -71,11 +71,23 @@ export class Ellipse extends Element implements IEllipse {
 		return d < (r + half) * (r + half) && d > (r - half) * (r - half)
 	}
 
+	// render(ctx) {
+	// 	super.render(ctx)
+	// 	ctx.save()
+	// 	ctx.beginPath()
+	// 	ctx.ellipse(this.cx, this.cy, this.r1, this.r2, this.angle, 0, PI2, true);
+	// 	ctx.closePath()
+	//  ctx.stroke()
+	// 	ctx.restore()
+	// }
 	render(ctx) {
 		super.render(ctx)
 		ctx.save()
 		let mx = this.matrix
 		ctx.transform(mx.a, mx.b, mx.c, mx.d, mx.tx, mx.ty)
+		ctx.lineWidth = this.strokeWidth
+		ctx.strokeStyle = this.strokeColor.toString()
+		ctx.setLineDash(this.dashArray)
 		ctx.beginPath()
 		ctx.ellipse(this.cx, this.cy, this.r1, this.r2, 0, 0, PI2, true);
 		ctx.closePath()

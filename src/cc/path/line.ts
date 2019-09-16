@@ -43,6 +43,7 @@ export class Line extends Element implements ILine {
 
 		ctx.lineWidth = this.strokeWidth
 		ctx.strokeStyle = this.strokeColor.toString()
+		ctx.setLineDash(this.dashArray)
 		let mx = this.matrix
 		ctx.transform(mx.a, mx.b, mx.c, mx.d, mx.tx, mx.ty)
 		ctx.beginPath()
