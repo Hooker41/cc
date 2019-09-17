@@ -3,6 +3,7 @@ import {IThreePointDrawing} from "./def";
 import {ILine} from "../path/def";
 import {Line} from "../path/line";
 import { Color } from "../core";
+import {Line as BaseLine} from "../core/line";
 
 export class TrendBasedFibonacciExtension extends ThreePointDrawing {
 	static type = 'TrendBasedFibonacciExtension'
@@ -11,7 +12,7 @@ export class TrendBasedFibonacciExtension extends ThreePointDrawing {
 	trendLine: ILine
 	fibLines: ILine[]
 
-	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement, stageWidth: number, stageHeight: number) {
 		super(l, scaleCanvas)
 
 		this.type = TrendBasedFibonacciExtension.type
@@ -20,7 +21,10 @@ export class TrendBasedFibonacciExtension extends ThreePointDrawing {
 		this.fibLines = []
 		const {x2, y2} = l
 		for (let i = 0, len = TrendBasedFibonacciExtension.ratios.length; i < len; i++) {
-			this.fibLines.push(new Line({x1: x2, y1: y2, x2, y2}))
+			const newLine = new Line({x1: x2, y1: y2, x2, y2})
+			newLine.stageWidth = stageWidth
+			newLine.stageHeight = stageHeight
+			this.fibLines.push(newLine)
 		}
 		this._recalculateLines()
 	}
@@ -131,7 +135,12 @@ export class TrendBasedFibonacciExtension extends ThreePointDrawing {
 			h.y2 = y
 		}
 	}
-
+	set setExtend(extend: boolean[]) {
+		for (let i = 0, len = TrendBasedFibonacciExtension.ratios.length; i < len; i++) {
+			this.fibLines[i].extendLeft = extend[0]
+			this.fibLines[i].extendRight = extend[1]
+		}
+	}
 	hitTest(point) {
 		if (!this.isVisible) return null
 
@@ -141,7 +150,17 @@ export class TrendBasedFibonacciExtension extends ThreePointDrawing {
 		}
 		if (this.trendLine.contains(point)) return this
 		for (let i = 0, len = this.fibLines.length; i < len; i++) {
-			if (this.fibLines[i].contains(point)) return this
+			const line = this.fibLines[i]
+			let remotePoint1 = {x: line.x1, y: line.y1}
+			let remotePoint2 = {x: line.x2, y: line.y2}
+			if (line.extendLeft) {
+				remotePoint1 = BaseLine.remotePointOfRay(line.x2, line.y2, line.x1, line.y1, line.stageWidth, line.stageHeight)
+			}
+			if (line.extendRight) {
+				remotePoint2 = BaseLine.remotePointOfRay(line.x1, line.y1, line.x2, line.y2, line.stageWidth, line.stageHeight)
+			}
+
+			if (BaseLine.contains(remotePoint1.x, remotePoint1.y, remotePoint2.x, remotePoint2.y, line.strokeWidth + line.hitRange, point.x, point.y)) return this
 		}
 		return null
 	}

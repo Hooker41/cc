@@ -64,6 +64,12 @@ export class Shape extends Node implements IShape {
   id: string
 
   // Stroke
+  stageWidth: number = 0
+  stageHeight: number = 0
+  extendLeft: boolean = false
+  extendRight: boolean = false
+  remotePoint1: IBaseVector = {x: 0, y: 0}
+	remotePoint2: IBaseVector = {x: 0, y: 0}
   strokeColor: Color = Color.white
   strokeWidth: number = 0.5
   strokeCap: StrokeCap = StrokeCap.Butt

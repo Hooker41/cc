@@ -4,12 +4,11 @@ import {TwoPointDrawing} from "./drawing";
 import {ITrendAngle, ITwoPointDrawing} from "./def";
 import {Arc} from "../path/arc";
 import {Vector} from "../core/vector";
-import {IText, TextAlign, TextBaseLine} from "../typography/def";
+import {TextAlign, TextBaseLine} from "../typography/def";
 import {Text} from '../typography/text'
-import {addDisposableListener, EventType} from "../../base/browser/event";
 import {IStage} from "../dom/def";
 import { Color } from "../core";
-
+import {Line as BaseLine} from '../core/line';
 export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 	line: ILine
 	horizontalLine: ILine
@@ -17,11 +16,13 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 	label: Text
 	static ArcSize = 50
 
-	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement, stageWidth: number, stageHeight: number) {
 		super(l, scaleCanvas)
 		this.type = 'TrendAngle'
 
 		this.line = new Line(l)
+		this.line.stageHeight = stageHeight
+		this.line.stageWidth = stageWidth
 		this.horizontalLine = new Line({x1: l.x1, y1: l.y1, x2: l.x1 + TrendAngle.ArcSize, y2: l.y1})
 
 		let angle = Vector.angle(Vector.subtract({x: l.x2, y: l.y2}, {x: l.x1, y: l.y1}))
@@ -160,6 +161,10 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 			this.line.dashArray = [5, 8]
 		}
 	}
+	set setExtend(extend: boolean[]) {
+		this.line.extendLeft = extend[0]
+		this.line.extendRight = extend[1]
+	}
 	hitTest(point) {
 		if (!this.isVisible) return null
 
@@ -169,7 +174,17 @@ export class TrendAngle extends TwoPointDrawing implements ITrendAngle {
 		}
 		// TODO: text hit test
 		// if (this.label.contains(point)) return this
-		if (this.line.contains(point)) return this
+		let stage = this.root as IStage
+
+		let remotePoint1 = {x: this.x1, y: this.y1}
+		let remotePoint2 = {x: this.x2, y: this.y2}
+		if (this.line.extendLeft) {
+			remotePoint1 = BaseLine.remotePointOfRay(this.x2, this.y2, this.x1, this.y1, stage.bounds.width, stage.bounds.height)
+		}
+		if (this.line.extendRight) {
+			remotePoint2 = BaseLine.remotePointOfRay(this.x1, this.y1, this.x2, this.y2, stage.bounds.width, stage.bounds.height)
+		}
+		if (BaseLine.contains(remotePoint1.x, remotePoint1.y, remotePoint2.x, remotePoint2.y, this.hitRange, point.x, point.y)) return this
 		return null
 	}
 

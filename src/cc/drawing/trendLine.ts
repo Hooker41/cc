@@ -1,17 +1,19 @@
 import {ILine} from "../path/def";
 import {Line} from "../path/line";
+import {Line as BaseLine} from '../core/line';
 import {TwoPointDrawing} from "./drawing";
 import {ITrendLine, ITwoPointDrawing} from "./def";
 import { Color } from "../core";
+import { IStage } from "../dom/def";
 
 export class TrendLine extends TwoPointDrawing implements ITrendLine {
 	line: ILine
-
-	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement, stageWidth: number, stageHeight: number) {
 		super(l, scaleCanvas)
 		this.type = 'TrendLine'
-
 		this.line = new Line(l)
+		this.line.stageHeight = stageHeight
+		this.line.stageWidth = stageWidth
 	}
 
 	_handleMouseLeave(e) {
@@ -72,6 +74,10 @@ export class TrendLine extends TwoPointDrawing implements ITrendLine {
 			this.line.dashArray = [5, 8]
 		}
 	}
+	set setExtend(extend: boolean[]) {
+		this.line.extendLeft = extend[0]
+		this.line.extendRight = extend[1]
+	}
 	hitTest(point) {
 		if (!this.isVisible) return null
 
@@ -79,7 +85,19 @@ export class TrendLine extends TwoPointDrawing implements ITrendLine {
 			let l = this.lollipops[i]
 			if (l.contains(point)) return l
 		}
-		if (this.line.contains(point)) return this
+		// if (this.line.contains(point)) return this
+
+		let stage = this.root as IStage
+
+		let remotePoint1 = {x: this.x1, y: this.y1}
+		let remotePoint2 = {x: this.x2, y: this.y2}
+		if (this.line.extendLeft) {
+			remotePoint1 = BaseLine.remotePointOfRay(this.x2, this.y2, this.x1, this.y1, stage.bounds.width, stage.bounds.height)
+		}
+		if (this.line.extendRight) {
+			remotePoint2 = BaseLine.remotePointOfRay(this.x1, this.y1, this.x2, this.y2, stage.bounds.width, stage.bounds.height)
+		}
+		if (BaseLine.contains(remotePoint1.x, remotePoint1.y, remotePoint2.x, remotePoint2.y, this.hitRange, point.x, point.y)) return this
 		return null
 	}
 

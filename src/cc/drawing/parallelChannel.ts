@@ -14,12 +14,13 @@ export class ParallelChannel extends ThreePointDrawing {
 	line: ILine
 	__x3: number
 	thirdDispose: IDisposable
-
-	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement, stageWidth: number, stageHeight: number) {
 		super(l, scaleCanvas)
 
 		this.type = ParallelChannel.type
 		this.line = new Line(l)
+		this.stageHeight = stageHeight
+		this.stageWidth = stageWidth
 	}
 
 	_handleStartDragControlPoint(e) {
@@ -98,7 +99,10 @@ export class ParallelChannel extends ThreePointDrawing {
 		this.__x3 = val
 		if (this.lollipops && this.lollipops[2]) this.lollipops[2].cx = val
 	}
-
+	set setExtend(extend: boolean[]) {
+		this.extendLeft = extend[0]
+		this.extendRight = extend[1]
+	}
 	hitTest(point) {
 		if (!this.isVisible) return null
 
@@ -106,9 +110,18 @@ export class ParallelChannel extends ThreePointDrawing {
 			let l = this.lollipops[i]
 			if (l.contains(point)) return l
 		}
-		if (BaseLine.contains(this.x1, this.y1, this.x2, this.y2, this.strokeWidth + this.hitRange, point.x, point.y)) return this
+		let remotePoint1 = {x: this.x1, y: this.y1}
+		let remotePoint2 = {x: this.x2, y: this.y2}
+		if (this.extendLeft) {
+			remotePoint1 = BaseLine.remotePointOfRay(this.x2, this.y2, this.x1, this.y1, this.stageWidth, this.stageHeight)
+		}
+		if (this.extendRight) {
+			remotePoint2 = BaseLine.remotePointOfRay(this.x1, this.y1, this.x2, this.y2, this.stageWidth, this.stageHeight)
+		}
+
+		if (BaseLine.contains(remotePoint1.x, remotePoint1.y, remotePoint2.x, remotePoint2.y, this.strokeWidth + this.hitRange, point.x, point.y)) return this
 		let {offset} = this
-		if (BaseLine.contains(this.x1, this.y1 + offset, this.x2, this.y2 + offset, this.strokeWidth + this.hitRange, point.x, point.y)) return this
+		if (BaseLine.contains(remotePoint1.x, remotePoint1.y + offset, remotePoint2.x, remotePoint2.y + offset, this.strokeWidth + this.hitRange, point.x, point.y)) return this
 		return null
 	}
 	set setStrokeWidth(val: number) {
@@ -137,11 +150,20 @@ export class ParallelChannel extends ThreePointDrawing {
 		ctx.transform(mx.a, mx.b, mx.c, mx.d, mx.tx, mx.ty)
 		ctx.beginPath()
 
-		ctx.moveTo(this.x1, this.y1)
-		ctx.lineTo(this.x2, this.y2)
+		this.remotePoint1 = {x: this.x1, y: this.y1}
+		this.remotePoint2 = {x: this.x2, y: this.y2}
+		if (this.extendLeft) {
+			this.remotePoint1 = BaseLine.remotePointOfRay(this.x2, this.y2, this.x1, this.y1, this.stageWidth, this.stageHeight)
+		}
+		if (this.extendRight) {
+			this.remotePoint2 = BaseLine.remotePointOfRay(this.x1, this.y1, this.x2, this.y2, this.stageWidth, this.stageHeight)
+		}
 
-		ctx.moveTo(this.x1, this.y1 + this.offset)
-		ctx.lineTo(this.x2, this.y2 + this.offset)
+		ctx.moveTo(this.remotePoint1.x, this.remotePoint1.y)
+		ctx.lineTo(this.remotePoint2.x, this.remotePoint2.y)
+
+		ctx.moveTo(this.remotePoint1.x, this.remotePoint1.y + this.offset)
+		ctx.lineTo(this.remotePoint2.x, this.remotePoint2.y + this.offset)
 
 		ctx.closePath()
 		ctx.stroke()

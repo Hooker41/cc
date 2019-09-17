@@ -4,13 +4,13 @@ import {Rectangle} from "../core/rectangle";
 import {Matrix} from "../core/matrix";
 import {Vector} from "../core/vector";
 import {Line as BaseLine} from '../core/line'
+import { IBaseVector } from "../core/def";
 
 export class Line extends Element implements ILine {
 	x1: number
 	y1: number
 	x2: number
 	y2: number
-
 	constructor(l: IBaseLineShape) {
 		super(null)
 
@@ -20,6 +20,8 @@ export class Line extends Element implements ILine {
 		this.y1 = l.y1
 		this.x2 = l.x2
 		this.y2 = l.y2
+		this.remotePoint1 = {x: this.x1, y: this.y1}
+		this.remotePoint2 = {x: this.x2, y: this.y2}
 	}
 
 	get bounds() {
@@ -56,7 +58,16 @@ export class Line extends Element implements ILine {
 	}
 
 	renderAsPath(ctx) {
-		ctx.moveTo(this.x1, this.y1)
-		ctx.lineTo(this.x2, this.y2)
+		this.remotePoint1 = {x: this.x1, y: this.y1}
+		this.remotePoint2 = {x: this.x2, y: this.y2}
+		if (this.extendLeft) {
+			this.remotePoint1 = BaseLine.remotePointOfRay(this.x2, this.y2, this.x1, this.y1, this.stageWidth, this.stageHeight)
+		}
+		if (this.extendRight) {
+			this.remotePoint2 = BaseLine.remotePointOfRay(this.x1, this.y1, this.x2, this.y2, this.stageWidth, this.stageHeight)
+		}
+
+		ctx.moveTo(this.remotePoint1.x, this.remotePoint1.y)
+		ctx.lineTo(this.remotePoint2.x, this.remotePoint2.y)
 	}
 }

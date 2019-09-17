@@ -8,8 +8,8 @@ export class Arrow extends TrendLine implements IArrow {
 	static type = 'Arrow'
 	strokeWidth: number
 	strokeColor: Color
-	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
-		super(l, scaleCanvas)
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement, stageWidth: number, stageHeight: number) {
+		super(l, scaleCanvas, stageWidth, stageHeight)
 		this.type = Arrow.type
 	}
 	set setStrokeWidth(val: number) {

@@ -106,6 +106,12 @@ export interface IShape {
   opacity: number
   isLocked: boolean
   // Stroke
+  stageWidth: number
+  stageHeight: number
+  extendLeft: boolean
+  extendRight: boolean
+  remotePoint1: IBaseVector
+	remotePoint2: IBaseVector
   strokeColor: Color | string
   strokeWidth: number
   strokeCap: StrokeCap

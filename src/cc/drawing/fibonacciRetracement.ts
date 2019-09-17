@@ -3,6 +3,7 @@ import {Line} from "../path/line";
 import {TwoPointDrawing} from "./drawing";
 import {ITrendLine, ITwoPointDrawing} from "./def";
 import { Color } from "../core";
+import {Line as BaseLine} from "../core/line";
 
 export class FibonacciRetracement extends TwoPointDrawing implements ITrendLine {
 	static type = 'FibonacciRetracement'
@@ -10,13 +11,16 @@ export class FibonacciRetracement extends TwoPointDrawing implements ITrendLine 
 
 	lines: ILine[]
 
-	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
+	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement, stageWidth: number, stageHeight: number) {
 		super(l, scaleCanvas)
 		this.type = FibonacciRetracement.type
 
 		this.lines = []
 		for (let i = 0, len = FibonacciRetracement.ratios.length; i < len; i++) {
-			this.lines.push(new Line(l))
+			const newLine = new Line(l);
+			newLine.stageWidth = stageWidth
+			newLine.stageHeight = stageHeight
+			this.lines.push(newLine)
 		}
 		this._recalculateLines()
 	}
@@ -83,6 +87,12 @@ export class FibonacciRetracement extends TwoPointDrawing implements ITrendLine 
 			this.lines[i].dashArray = dashArray
 		}
 	}
+	set setExtend(extend: boolean[]) {
+		for (let i = 0, len = FibonacciRetracement.ratios.length; i < len; i++) {
+			this.lines[i].extendLeft = extend[0]
+			this.lines[i].extendRight = extend[1]
+		}
+	}
 	_recalculateLines() {
 		const {_x1, _y1, _x2, _y2} = this
 
@@ -109,7 +119,17 @@ export class FibonacciRetracement extends TwoPointDrawing implements ITrendLine 
 		}
 
 		for (let i = 0, len = this.lines.length; i < len; i++) {
-			if (this.lines[i].contains(point)) return this
+			const line = this.lines[i]
+			let remotePoint1 = {x: line.x1, y: line.y1}
+			let remotePoint2 = {x: line.x2, y: line.y2}
+			if (line.extendLeft) {
+				remotePoint1 = BaseLine.remotePointOfRay(line.x2, line.y2, line.x1, line.y1, line.stageWidth, line.stageHeight)
+			}
+			if (line.extendRight) {
+				remotePoint2 = BaseLine.remotePointOfRay(line.x1, line.y1, line.x2, line.y2, line.stageWidth, line.stageHeight)
+			}
+
+			if (BaseLine.contains(remotePoint1.x, remotePoint1.y, remotePoint2.x, remotePoint2.y, line.strokeWidth + line.hitRange, point.x, point.y)) return this
 		}
 		return null
 	}

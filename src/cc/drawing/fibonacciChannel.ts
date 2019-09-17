@@ -3,6 +3,7 @@ import {Line} from "../path/line";
 import {ThreePointDrawing} from "./drawing";
 import {IThreePointDrawing} from "./def";
 import { Color } from "../core";
+import {Line as BaseLine} from "../core/line";
 
 export class FibonacciChannel extends ThreePointDrawing {
 	static type = 'FibonacciChannel'
@@ -10,14 +11,17 @@ export class FibonacciChannel extends ThreePointDrawing {
 
 	lines: ILine[]
 
-	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement) {
+	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement, stageWidth: number, stageHeight: number) {
 		super(l, scaleCanvas)
 		this.type = FibonacciChannel.type
 
 		this.lines = []
 
 		for (let i = 0, len = FibonacciChannel.ratios.length; i < len; i++) {
-			this.lines.push(new Line(l))
+			const newLine = new Line(l);
+			newLine.stageWidth = stageWidth
+			newLine.stageHeight = stageHeight
+			this.lines.push(newLine)
 		}
 		this._recalculateLines()
 	}
@@ -120,7 +124,12 @@ export class FibonacciChannel extends ThreePointDrawing {
 			l.y2 = _y2 + y
 		}
 	}
-
+	set setExtend(extend: boolean[]) {
+		for (let i = 0, len = FibonacciChannel.ratios.length; i < len; i++) {
+			this.lines[i].extendLeft = extend[0]
+			this.lines[i].extendRight = extend[1]
+		}
+	}
 	hitTest(point) {
 		if (!this.isVisible) return null
 
@@ -130,7 +139,17 @@ export class FibonacciChannel extends ThreePointDrawing {
 		}
 
 		for (let i = 0, len = this.lines.length; i < len; i++) {
-			if (this.lines[i].contains(point)) return this
+			const line = this.lines[i]
+			let remotePoint1 = {x: line.x1, y: line.y1}
+			let remotePoint2 = {x: line.x2, y: line.y2}
+			if (line.extendLeft) {
+				remotePoint1 = BaseLine.remotePointOfRay(line.x2, line.y2, line.x1, line.y1, line.stageWidth, line.stageHeight)
+			}
+			if (line.extendRight) {
+				remotePoint2 = BaseLine.remotePointOfRay(line.x1, line.y1, line.x2, line.y2, line.stageWidth, line.stageHeight)
+			}
+
+			if (BaseLine.contains(remotePoint1.x, remotePoint1.y, remotePoint2.x, remotePoint2.y, line.strokeWidth + line.hitRange, point.x, point.y)) return this
 		}
 		return null
 	}
