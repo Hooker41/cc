@@ -46,15 +46,17 @@ export class Polyline extends Element implements IPolyline {
 		ctx.transform(mx.a, mx.b, mx.c, mx.d, mx.tx, mx.ty)
 		ctx.beginPath()
 		this.renderAsPath(ctx)
-		ctx.strokeStyle = this.strokeColor.toString()
-		ctx.stroke()
+		// ctx.strokeStyle = this.strokeColor.toString()
+		// ctx.stroke()
+		ctx.fillStyle = this.fillColor.toString()
+		ctx.fill()
 		ctx.restore()
 	}
 
 	renderAsPath(ctx) {
 		if (this.points.length < 2) return
 		ctx.moveTo(this.points[0].x, this.points[0].y)
-		for (let i = 0, len = this.points.length; i < len; i++) {
+		for (let i = 1, len = this.points.length; i < len; i++) {
 			let p = this.points[i]
 			ctx.lineTo(p.x, p.y)
 		}

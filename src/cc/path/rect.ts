@@ -50,9 +50,8 @@ export class Rect extends Element implements IRect {
 		ctx.save()
 		let mx = this.matrix
 		ctx.transform(mx.a, mx.b, mx.c, mx.d, mx.tx, mx.ty)
-		ctx.strokeStyle = this.strokeColor.toString()
-
-		ctx.strokeRect(this.x, this.y, this.width, this.height)
+		ctx.fillStyle = this.fillColor.toString()
+		ctx.fillRect(this.x, this.y, this.width, this.height)
 		ctx.restore()
 	}
 }

@@ -76,9 +76,9 @@ export class Triangle extends Element implements ITriangle {
 		ctx.moveTo(this.x1, this.y1)
 		ctx.lineTo(this.x2, this.y2)
 		ctx.lineTo(this.x3, this.y3)
+		ctx.fillStyle = this.fillColor.toString()
+		ctx.fill()
 		ctx.closePath()
-		ctx.strokeStyle = this.strokeColor.toString()
-		ctx.stroke()
 		ctx.restore()
 	}
 }

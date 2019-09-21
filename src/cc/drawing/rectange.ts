@@ -1,8 +1,10 @@
-import {ILine} from "../path/def";
+import {ILine, IRect} from "../path/def";
 import {Line} from "../path/line";
 import {TwoPointDrawing} from "./drawing";
 import {ITrendLine, ITwoPointDrawing} from "./def";
 import { Color } from "../core";
+import { Rect as RectPath } from "../path/rect";
+import { RGBA } from "../core/color";
 
 export class Rect extends TwoPointDrawing implements ITrendLine {
 	static type = "Rectangle"
@@ -10,14 +12,15 @@ export class Rect extends TwoPointDrawing implements ITrendLine {
 
 	horizontalLines: ILine[]
 	verticalLines: ILine[]
-
+	pathRect: IRect
 	constructor(l: ITwoPointDrawing, scaleCanvas: HTMLCanvasElement) {
 		super(l, scaleCanvas)
 		this.type = Rect.type
 
 		this.horizontalLines = []
 		this.verticalLines = []
-
+		this.pathRect = new RectPath({x: l.x1, y: l.y1, width: l.x2 - l.x1, height: l.y2 - l.y1})
+		this.pathRect.fillColor = new Color(new RGBA(0, 0, 255, 0.5))
 		for (let i = 0, len = Rect.ratios.length; i < len; i++) {
 			this.horizontalLines.push(new Line(l))
 			this.verticalLines.push(new Line(l))
@@ -41,24 +44,30 @@ export class Rect extends TwoPointDrawing implements ITrendLine {
 	}
 	set x1(val) {
 		this._x1 = val
+		this.pathRect.x = val
+		this.pathRect.width = this._x2 - val
 		if (this.lollipops && this.lollipops[0]) this.lollipops[0].cx = val
 		this._recalculateLines()
 	}
 
 	set y1(val) {
 		this._y1 = val
+		this.pathRect.y = val
+		this.pathRect.height = this._y2 - val
 		if (this.lollipops && this.lollipops[0]) this.lollipops[0].cy = val
 		this._recalculateLines()
 	}
 
 	set x2(val) {
 		this._x2 = val
+		this.pathRect.width = val - this._x1
 		if (this.lollipops && this.lollipops[1]) this.lollipops[1].cx = val
 		this._recalculateLines()
 	}
 
 	set y2(val) {
 		this._y2 = val
+		this.pathRect.height = val - this._y1
 		if (this.lollipops && this.lollipops[1]) this.lollipops[1].cy = val
 		this._recalculateLines()
 	}
@@ -89,6 +98,10 @@ export class Rect extends TwoPointDrawing implements ITrendLine {
 			this.horizontalLines[i].dashArray = dashArray
 			this.verticalLines[i].dashArray = dashArray
 		}
+	}
+	set setFillColor(rgba){
+		const fillColor = new RGBA(rgba.r, rgba.g, rgba.b, rgba.a)
+		this.pathRect.fillColor = new Color(fillColor)
 	}
 	_recalculateLines() {
 		const {_x1, _y1, _x2, _y2} = this
@@ -128,7 +141,6 @@ export class Rect extends TwoPointDrawing implements ITrendLine {
 		}
 		return null
 	}
-
 	render(ctx) {
 		if (!this.isVisible) return
 		if (this.opacity === 0) return
@@ -138,6 +150,7 @@ export class Rect extends TwoPointDrawing implements ITrendLine {
 		for (let i = 0, len = this.verticalLines.length; i < len; i++) {
 			this.verticalLines[i].render(ctx)
 		}
+		this.pathRect.render(ctx)
 		if (!this.isDrawing && (this._isHovered || this._isSelected)) {
 			for (let i = 0; i < 2; i++) {
 				this.lollipops[i].render(ctx)

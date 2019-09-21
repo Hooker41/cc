@@ -1,3 +1,6 @@
+import { Color } from "./color"
+import { IPolyline } from "../path/def"
+
 export interface IStringifyable {
 	toString(): string;
 }
@@ -57,7 +60,10 @@ export interface IBaseVector {
 	x: number;
 	y: number;
 }
-
+export interface IBand {
+	polyPath: IPolyline;
+	fillColor: Color
+}
 export interface IPolarCoordVector {
 	width: number;
 	angle: number;

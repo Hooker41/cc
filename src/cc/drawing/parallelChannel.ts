@@ -1,18 +1,21 @@
 import {ThreePointDrawing} from "./drawing";
 import {IThreePointDrawing} from "./def";
-import {ILine} from "../path/def";
+import {ILine, IPolyline} from "../path/def";
 import {Line} from "../path/line";
 import {Line as BaseLine} from "../core/line";
 import {IDisposable} from "../../base/common/lifecycle";
 import {addDisposableListener, EventType} from "../../base/browser/event";
 import {IStage} from "../dom/def";
 import { Color } from "../core";
+import { RGBA } from "../core/color";
+import { Polyline } from "../path";
 
 export class ParallelChannel extends ThreePointDrawing {
 	static type = 'ParallelChannel'
 
 	line: ILine
 	__x3: number
+	polyPath: IPolyline
 	thirdDispose: IDisposable
 	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement, stageWidth: number, stageHeight: number) {
 		super(l, scaleCanvas)
@@ -21,6 +24,8 @@ export class ParallelChannel extends ThreePointDrawing {
 		this.line = new Line(l)
 		this.stageHeight = stageHeight
 		this.stageWidth = stageWidth
+		this.polyPath = new Polyline({x: l.x1, y: l.y1}, {x: l.x2, y: l.y2}, {x: l.x2, y: l.y2 + this.offset}, {x: l.x1, y: l.y1 + this.offset});
+		this.polyPath.fillColor = new Color(new RGBA(178, 168, 211, 0.5))
 	}
 
 	_handleStartDragControlPoint(e) {
@@ -139,6 +144,10 @@ export class ParallelChannel extends ThreePointDrawing {
 			this.dashArray = [5, 8]
 		}
 	}
+	set setFillColor(rgba){
+		const fillColor = new RGBA(rgba.r, rgba.g, rgba.b, rgba.a)
+		this.polyPath.fillColor = new Color(fillColor)
+	}
 	render(ctx) {
 		if (!this.isVisible) return
 		if (this.opacity === 0) return
@@ -168,7 +177,12 @@ export class ParallelChannel extends ThreePointDrawing {
 		ctx.closePath()
 		ctx.stroke()
 		ctx.restore()
-
+		this.polyPath.points = [
+			{x: this.remotePoint1.x, y: this.remotePoint1.y},
+			{x: this.remotePoint2.x, y: this.remotePoint2.y},
+			{x: this.remotePoint2.x, y: this.remotePoint2.y + this.offset},
+			{x: this.remotePoint1.x, y: this.remotePoint1.y + this.offset}]
+		this.polyPath.render(ctx)
 		if (!this.isDrawing && (this._isHovered || this._isSelected)) {
 			for (let i = 0; i < 3; i++) {
 				this.lollipops[i].render(ctx)
