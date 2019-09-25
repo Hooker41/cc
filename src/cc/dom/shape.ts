@@ -71,7 +71,7 @@ export class Shape extends Node implements IShape {
   remotePoint1: IBaseVector = {x: 0, y: 0}
 	remotePoint2: IBaseVector = {x: 0, y: 0}
   strokeColor: Color = Color.white
-  strokeWidth: number = 0.5
+  strokeWidth: number = 2
   strokeCap: StrokeCap = StrokeCap.Butt
   strokeJoin: StrokeJoin = StrokeJoin.Miter
   dashOffset: number = 0

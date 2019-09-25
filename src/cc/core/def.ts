@@ -64,6 +64,12 @@ export interface IBand {
 	polyPath: IPolyline;
 	fillColor: Color
 }
+export interface ILevelLine {
+	value: number
+	rgba: {r: number, g: number, b: number, a: number}
+	dash: string
+	width: number
+}
 export interface IPolarCoordVector {
 	width: number;
 	angle: number;

@@ -6,16 +6,10 @@ import {IStage} from "../dom/def";
 import {Vector} from "../core/vector";
 import {Line} from "../path/line";
 import { Color } from "../core";
-import { IBand } from "../core/def";
+import { IBand, ILevelLine } from "../core/def";
 import { Polyline } from "../path";
 import { RGBA } from "../core/color";
 
-interface ILevelLine {
-	value: number
-	rgba: {r: number, g: number, b: number, a: number}
-	dash: string
-	width: number
-}
 export class PitchFork extends ThreePointDrawing {
 	static type = 'PitchFork'
 
@@ -234,8 +228,8 @@ export class PitchFork extends ThreePointDrawing {
 	}
 	set setLevels(levels){
 		this.levels = []
-		for (let i = 0; i < levels.length; i++) {
-			const level = levels[i];
+		for (let i = 0; i < levels[0].length; i++) {
+			const level = levels[0][i];
 			if (level.active.checked) {
 				const newLevel = {
 					value: level.value.value,

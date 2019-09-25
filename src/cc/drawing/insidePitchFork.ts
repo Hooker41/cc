@@ -6,20 +6,21 @@ import {IStage} from "../dom/def";
 import {Vector} from "../core/vector";
 import {Line} from "../path/line";
 import { Color } from "../core";
+import { IBand, ILevelLine } from "../core/def";
+import { Polyline } from "../path";
+import { RGBA } from "../core/color";
 
 export class InsidePitchFork extends ThreePointDrawing {
 	static type = 'InsidePitchFork'
 
 	line0: ILine
-
-	line1: ILine
-	line2: ILine
-	line3: ILine
-	line4: ILine
-	line5: ILine
 	line6: ILine
 	initHeight: number
 	initWidth: number
+	levelLineAry: Line[]
+	levelBand: IBand[]
+	levels: ILevelLine[]
+	bgOpacity: number
 	constructor(l: IThreePointDrawing, scaleCanvas: HTMLCanvasElement, initWidth: number, initHeight: number) {
 		super(l, scaleCanvas)
 
@@ -27,12 +28,21 @@ export class InsidePitchFork extends ThreePointDrawing {
 		this.initHeight = initHeight
 		this.initWidth = initWidth
 		this.line0 = new Line(l)
-		this.line1 = new Line(l)
-		this.line2 = new Line(l)
-		this.line3 = new Line(l)
-		this.line4 = new Line(l)
-		this.line5 = new Line(l)
 		this.line6 = new Line(l)
+		this.levels = [{
+			value: 0.5,
+			rgba: {r: 68, g: 152, b: 42, a: 1},
+			dash: 'line',
+			width: 2
+		}, {
+			value: 1,
+			rgba: {r: 0, g: 11, b: 147, a: 1},
+			dash: 'line',
+			width: 2
+		}]
+		this.levelLineAry = []
+		this.levelBand = []
+		this.bgOpacity = 0.2
 		this._recalculateLines()
 	}
 	get x1() {
@@ -96,29 +106,24 @@ export class InsidePitchFork extends ThreePointDrawing {
 
 	_recalculateLines() {
 		const {_x1, _y1, _x2, _y2, _x3, _y3} = this
+		this.levelLineAry = []
+		this.levelBand = []
 
 		this.line0.x1 = _x1
 		this.line0.y1 = _y1
 		this.line0.x2 = _x2
 		this.line0.y2 = _y2
+		this.line0.strokeColor = this.strokeColor
+		this.line0.strokeWidth = this.strokeWidth
+		this.line0.dashArray = this.dashArray
 
 		this.line6.x1 = _x2
 		this.line6.y1 = _y2
 		this.line6.x2 = _x3
 		this.line6.y2 = _y3
-
-		let origin = {x: (_x1 + _x2) / 2, y: (_y1 + _y2) / 2}
-
-		let pt3 = Vector.midPoint({x: _x2, y: _y2}, {x: _x3, y: _y3})
-		let pt2 = Vector.midPoint({x: _x2, y: _y2}, pt3)
-		let pt4 = Vector.midPoint({x: _x3, y: _y3}, pt3)
-		let pt1 = {x: _x2, y: _y2}
-		let pt5 = {x: _x3, y: _y3}
-
-		let offset1 = BaseLine.verticalOffsetOfParallelLine(origin.x, origin.y, pt5.x, pt5.y, pt1.x, pt1.y)
-		let offset2 = BaseLine.verticalOffsetOfParallelLine(origin.x, origin.y, pt5.x, pt5.y, pt2.x, pt2.y)
-		let offset3 = BaseLine.verticalOffsetOfParallelLine(origin.x, origin.y, pt5.x, pt5.y, pt3.x, pt3.y)
-		let offset4 = BaseLine.verticalOffsetOfParallelLine(origin.x, origin.y, pt5.x, pt5.y, pt4.x, pt4.y)
+		this.line6.strokeColor = this.strokeColor
+		this.line6.strokeWidth = this.strokeWidth
+		this.line6.dashArray = this.dashArray
 
 		let stage = this.root as IStage
 		let width = undefined
@@ -131,36 +136,67 @@ export class InsidePitchFork extends ThreePointDrawing {
 			height = stage.bounds.height
 		}
 
-		let remotePoint1 = BaseLine.remotePointOfRay(origin.x, origin.y + offset1, pt5.x, pt5.y + offset1, width, height)
-		let remotePoint2 = BaseLine.remotePointOfRay(origin.x, origin.y + offset2, pt5.x, pt5.y + offset2, width, height)
-		let remotePoint3 = BaseLine.remotePointOfRay(origin.x, origin.y + offset3, pt5.x, pt5.y + offset3, width, height)
-		let remotePoint4 = BaseLine.remotePointOfRay(origin.x, origin.y + offset4, pt5.x, pt5.y + offset4, width, height)
-		let remotePoint5 = BaseLine.remotePointOfRay(origin.x, origin.y, pt5.x, pt5.y, width, height)
+		let origin = {x: (_x1 + _x2) / 2, y: (_y1 + _y2) / 2}
 
-		this.line1.x1 = pt1.x
-		this.line1.y1 = pt1.y
-		this.line1.x2 = remotePoint1.x
-		this.line1.y2 = remotePoint1.y
+		let leftPt = {x: _x3, y: _y3}
+		let leftLine = new Line({x1: origin.x, y1: origin.y, x2: leftPt.x, y2: leftPt.y})
+		leftLine.strokeColor = this.strokeColor
+		leftLine.strokeWidth = this.strokeWidth
+		leftLine.dashArray = this.dashArray
+		this.levelLineAry.push(leftLine)
 
-		this.line2.x1 = pt2.x
-		this.line2.y1 = pt2.y
-		this.line2.x2 = remotePoint2.x
-		this.line2.y2 = remotePoint2.y
+		let midPt = Vector.midPoint({x: _x2, y: _y2}, {x: _x3, y: _y3})
+		let midOrigin =  Vector.midPoint({x: _x2, y: _y2}, origin)
+		let midRemotepoint = BaseLine.remotePointOfRay(midOrigin.x, midOrigin.y, midPt.x, midPt.y, width, height)
+		let midLine = new Line({x1: midPt.x, y1: midPt.y, x2: midRemotepoint.x, y2: midRemotepoint.y})
+		midLine.strokeColor = this.strokeColor
+		midLine.strokeWidth = this.strokeWidth
+		midLine.dashArray = this.dashArray
+		this.levelLineAry.push(midLine)
 
-		this.line3.x1 = pt3.x
-		this.line3.y1 = pt3.y
-		this.line3.x2 = remotePoint3.x
-		this.line3.y2 = remotePoint3.y
+		let preLeftPt = midPt
+		let preLeftRemotPt = midRemotepoint
+		let preRightPt = midPt
+		let preRightRemotPt = midRemotepoint
+		for (let i = 0; i < this.levels.length; i++) {
+			const level = this.levels[i]
+			const levelDash = level.dash
+			const rgba = level.rgba;
+			const levelColor = new Color(new RGBA(rgba.r, rgba.g, rgba.b, rgba.a))
 
-		this.line4.x1 = pt4.x
-		this.line4.y1 = pt4.y
-		this.line4.x2 = remotePoint4.x
-		this.line4.y2 = remotePoint4.y
+			const leftX = midPt.x + (_x2 - midPt.x) * level.value
+			const leftY = midPt.y - (midPt.y - _y2) * level.value
+			const rightX = _x3 + (midPt.x - _x3) * (1 - level.value)
+			const rightY = _y3 - (_y3 - midPt.y) * (1 - level.value)
 
-		this.line5.x1 = origin.x
-		this.line5.y1 = origin.y
-		this.line5.x2 = remotePoint5.x
-		this.line5.y2 = remotePoint5.y
+			let leftOffset = BaseLine.verticalOffsetOfParallelLine(midOrigin.x, midOrigin.y, midPt.x, midPt.y, leftX, leftY)
+			let rightOffset = BaseLine.verticalOffsetOfParallelLine(midOrigin.x, midOrigin.y, midPt.x, midPt.y, rightX, rightY)
+
+			let remotePointLeft = BaseLine.remotePointOfRay(midOrigin.x, midOrigin.y + leftOffset, midPt.x, midPt.y + leftOffset, width, height)
+			let remotePointRight = BaseLine.remotePointOfRay(midOrigin.x, midOrigin.y + rightOffset, midPt.x, midPt.y + rightOffset, width, height)
+
+			let leftLine = new Line({x1: leftX, y1: leftY, x2: remotePointLeft.x, y2: remotePointLeft.y})
+			leftLine.strokeColor = levelColor
+			leftLine.strokeWidth = this.strokeWidth
+			leftLine.dashArray = this.levelStyle(levelDash)
+
+			let rightLine = new Line({x1: rightX, y1: rightY, x2: remotePointRight.x, y2: remotePointRight.y})
+			rightLine.strokeColor = levelColor
+			rightLine.strokeWidth = this.strokeWidth
+			rightLine.dashArray = this.levelStyle(levelDash)
+			this.levelLineAry.push(leftLine)
+			this.levelLineAry.push(rightLine)
+
+			const newLeftBand = new Polyline(preLeftPt, {x: leftX, y: leftY}, remotePointLeft, preLeftRemotPt)
+			this.levelBand.push({polyPath: newLeftBand, fillColor:  new Color(new RGBA(rgba.r, rgba.g, rgba.b, this.bgOpacity))})
+			const newRightBand = new Polyline(preRightPt, {x: rightX, y: rightY}, remotePointRight, preRightRemotPt)
+			this.levelBand.push({polyPath: newRightBand, fillColor:  new Color(new RGBA(rgba.r, rgba.g, rgba.b, this.bgOpacity))})
+
+			preLeftPt = {x: leftX, y: leftY}
+			preLeftRemotPt = remotePointLeft
+			preRightPt = {x: rightX, y: rightY}
+			preRightRemotPt = remotePointRight
+		}
 	}
 
 	hitTest(point) {
@@ -171,31 +207,31 @@ export class InsidePitchFork extends ThreePointDrawing {
 			if (l.contains(point)) return l
 		}
 		if (this.line0.contains(point)) return this
-		if (this.line1.contains(point)) return this
-		if (this.line2.contains(point)) return this
-		if (this.line3.contains(point)) return this
-		if (this.line4.contains(point)) return this
-		if (this.line5.contains(point)) return this
 		if (this.line6.contains(point)) return this
+		for (let i = 0; i < this.levelLineAry.length; i++) {
+			const line = this.levelLineAry[i]
+			if (line.contains(point)) return this
+		}
 		return null
 	}
+	levelStyle(style: string) {
+		let dashArray = undefined
+		if (style === 'line') {
+			dashArray = []
+		} if (style === 'dash') {
+			dashArray = [10, 15]
+		} if (style === 'dot') {
+			dashArray = [5, 8]
+		}
+		return dashArray
+	}
 	set setStrokeWidth(val: number) {
-		this.line0.strokeWidth = val
-		this.line1.strokeWidth = val
-		this.line2.strokeWidth = val
-		this.line3.strokeWidth = val
-		this.line4.strokeWidth = val
-		this.line5.strokeWidth = val
-		this.line6.strokeWidth = val
+		this.strokeWidth = val
+		this._recalculateLines()
 	}
 	set setStrokeColor(hex: string) {
-		this.line0.strokeColor = Color.fromHex(hex)
-		this.line1.strokeColor = Color.fromHex(hex)
-		this.line2.strokeColor = Color.fromHex(hex)
-		this.line3.strokeColor = Color.fromHex(hex)
-		this.line4.strokeColor = Color.fromHex(hex)
-		this.line5.strokeColor = Color.fromHex(hex)
-		this.line6.strokeColor = Color.fromHex(hex)
+		this.strokeColor = Color.fromHex(hex)
+		this._recalculateLines()
 	}
 	set setLineStyle(style: string) {
 		let dashArray = undefined
@@ -206,29 +242,45 @@ export class InsidePitchFork extends ThreePointDrawing {
 		} if (style === 'dot') {
 			dashArray = [5, 8]
 		}
-		this.line0.dashArray = dashArray
-		this.line1.dashArray = dashArray
-		this.line2.dashArray = dashArray
-		this.line3.dashArray = dashArray
-		this.line4.dashArray = dashArray
-		this.line5.dashArray = dashArray
-		this.line6.dashArray = dashArray
+		this.dashArray = dashArray
+		this._recalculateLines()
+	}
+	set setBGOpacity(opacity: number){
+		this.bgOpacity = opacity / 100
+		this._recalculateLines()
+	}
+	set setLevels(levels){
+		this.levels = []
+		for (let i = 0; i < levels[0].length; i++) {
+			const level = levels[0][i];
+			if (level.active.checked) {
+				const newLevel = {
+					value: level.value.value,
+					rgba: level.fillColor.rgba,
+					dash: level.style.values[level.style.index].value,
+					width: 2
+				}
+				this.levels.push(newLevel)
+			}
+		}
+		this.levels.sort((a, b) => a.value - b.value)
+		this._recalculateLines()
 	}
 	render(ctx) {
 		if (!this.isVisible) return
 		if (this.opacity === 0) return
 
-		this.line1.render(ctx)
-		this.line2.render(ctx)
-
-		this.line4.render(ctx)
-		this.line5.render(ctx)
-
 		this.line6.render(ctx)
-
 		this.line0.render(ctx)
-		this.line3.render(ctx)
-
+		for (let i = 0; i < this.levelLineAry.length; i++) {
+			const line = this.levelLineAry[i];
+			line.render(ctx)
+		}
+		for (let i = 0; i < this.levelBand.length; i++) {
+			const band = this.levelBand[i];
+			band.polyPath.fillColor = band.fillColor
+			band.polyPath.render(ctx)
+		}
 		if (!this.isDrawing && (this._isHovered || this._isSelected)) {
 			for (let i = 0; i < 3; i++) {
 				this.lollipops[i].render(ctx)
